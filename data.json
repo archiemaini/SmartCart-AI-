@@ -1,0 +1,44 @@
+[
+    {
+        "id": 1,
+        "title": "Basic T-Shirt",
+        "price": 15.99,
+        "category": "clothing",
+        "image": "images/tshirt.jpg"
+    },
+    {
+        "id": 2,
+        "title": "Running Shoes",
+        "price": 49.99,
+        "category": "shoes",
+        "image": "images/shoes.jpg"
+    },
+    {
+        "id": 3,
+        "title": "Wireless Mouse",
+        "price": 25.50,
+        "category": "electronics",
+        "image": "images/mouse.jpg"
+    },
+    {
+        "id": 4,
+        "title": "Silver Ring",
+        "price": 99.00,
+        "category": "jewelry",
+        "image": "images/ring.jpg"
+    },
+    {
+        "id": 5,
+        "title": "Laptop Backpack",
+        "price": 35.00,
+        "category": "accessories",
+        "image": "images/backpack.jpg"
+    },
+    {
+        "id": 6,
+        "title": "Gaming Keyboard",
+        "price": 60.00,
+        "category": "electronics",
+        "image": "images/keyboard.jpg"
+    }
+]

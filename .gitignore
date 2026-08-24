@@ -1,0 +1,22 @@
+node_modules/
+dist/
+build/
+
+# Environment — never commit real secrets. Only .env.example is tracked.
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# mongodb-memory-server binary cache
+.cache/

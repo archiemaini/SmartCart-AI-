@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartCart - Simple E-Commerce</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header>
+        <div class="logo">SmartCart</div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search for products...">
+            <button id="searchBtn">Search</button>
+        </div>
+        <div class="cart-info">
+            <span>Cart: <span id="cartCount">0</span> items</span>
+            <button id="viewCartBtn">View Cart</button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        
+        <!-- Sidebar Filters -->
+        <aside class="sidebar">
+            <h3>Filters</h3>
+            <div class="filter-group">
+                <label for="categoryFilter">Category:</label>
+                <select id="categoryFilter">
+                    <option value="all">All</option>
+                    <option value="electronics">Electronics</option>
+                    <option value="clothing">Clothing</option>
+                    <option value="shoes">Shoes</option>
+                    <option value="jewelry">Jewelry</option>
+                    <option value="accessories">Accessories</option>
+                </select>
+            </div>
+            <button id="resetFiltersBtn">Reset Filters</button>
+        </aside>
+
+        <!-- Product Grid -->
+        <main class="product-section">
+            <h2>Our Products</h2>
+            <div id="productGrid" class="grid">
+                <!-- Products will be injected here by JS -->
+                <p>Loading products...</p>
+            </div>
+        </main>
+
+        <!-- Cart Sidebar (Hidden by default) -->
+        <aside id="cartSidebar" class="cart-sidebar hidden">
+            <h3>Your Cart</h3>
+            <div id="cartItemsContainer">
+                <!-- Cart items will be injected here by JS -->
+            </div>
+            <hr>
+            <p><strong>Total: $<span id="cartTotal">0.00</span></strong></p>
+            <button id="checkoutBtn">Checkout</button>
+            <button id="closeCartBtn">Close</button>
+        </aside>
+
+    </div>
+
+    <!-- Contact Form Section -->
+    <section class="contact-section">
+        <h2>Contact Us (Feedback)</h2>
+        <form id="contactForm">
+            <div class="form-group">
+                <label for="nameInput">Name:</label>
+                <input type="text" id="nameInput" placeholder="Enter your name">
+                <span id="nameError" class="error-text hidden">Name is required (min 2 chars).</span>
+            </div>
+            <div class="form-group">
+                <label for="emailInput">Email:</label>
+                <input type="email" id="emailInput" placeholder="Enter your email">
+                <span id="emailError" class="error-text hidden">Valid email is required.</span>
+            </div>
+            <button type="submit" id="submitFormBtn">Send Feedback</button>
+            <p id="formSuccessMessage" class="success-text hidden">Thank you for your feedback!</p>
+        </form>
+    </section>
+
+    <!-- Chatbot Section -->
+    <div id="chatbotContainer" class="chatbot-container">
+        <div class="chatbot-header" id="chatbotHeader">
+            <span>Customer Support Chat</span>
+            <span id="chatbotToggle">▲</span>
+        </div>
+        <div id="chatbotBody" class="chatbot-body hidden">
+            <div id="chatMessages" class="chat-messages">
+                <div class="bot-msg">Hello! I am your SmartCart Assistant. Ask me about products, prices, or delivery.</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Type your message...">
+                <button id="sendChatBtn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main JavaScript Logic -->
+    <script src="script.js"></script>
+</body>
+</html>
