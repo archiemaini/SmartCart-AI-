@@ -12,7 +12,7 @@
 
 // Variables (let, const) & Data Types (Array, Object)
 let allProducts = []; // Array to store all product
-const productGrid = document.getElementById('productGrid'); // Topic 8: DOM Manipulation
+const productGrids = document.getElementById('productGrid'); // Topic 8: DOM Manipulation
 
 // Async JS (Promises, Fetch)
 async function fetchProducts() {
@@ -27,18 +27,18 @@ async function fetchProducts() {
         renderProducts(allProducts);
     } catch (error) {
         console.error("Error fetching data:", error);
-        productGrid.innerHTML = "Failed to load products.";
+        productGrids.innerHTML = "Failed to load products.";
     }
 }
 
 // Functions (Declaration)
 function renderProducts(productsArray) {
     // Clear the grid first
-    productGrid.innerHTML = '';
+    productGrids.innerHTML = '';
     
     // Conditions (if)
     if (productsArray.length === 0) {
-        productGrid.innerHTML = "<p>No products found.</p>";
+        productGrids.innerHTML = "<p>No products found.</p>";
         return;
     }
 
@@ -62,7 +62,7 @@ function renderProducts(productsArray) {
         `;
         
         // Append to DOM
-        productGrid.appendChild(card);
+        productGrids.appendChild(card);
     }
 }
 
@@ -103,7 +103,7 @@ const filterProducts = () => {
     });
 
     // Render the newly filtered array
-    renderProducts(filteredArray);
+    renderProduct(filteredArray);
 };
 
 // Events
@@ -113,7 +113,7 @@ categoryFilter.addEventListener('change', filterProducts);
 resetFiltersBtn.addEventListener('click', () => {
     searchInput.value = '';
     categoryFilter.value = 'all';
-    renderProducts(allProducts);
+    renderProduct(allProducts);
 });
 
 
