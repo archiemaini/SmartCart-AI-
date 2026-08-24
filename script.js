@@ -12,7 +12,7 @@
 
 // Variables (let, const) & Data Types (Array, Object)
 let allProducts = []; // Array to store all product
-const productGrid = document.getElementById('productGrid'); // Topic 8: DOM Manipulation
+const productGrid = document.getElementById('productGrid'); // DOM Manipulation
 
 // Async JS (Promises, Fetch)
 async function fetchProducts() {
@@ -57,7 +57,7 @@ function renderProducts(productsArray) {
             <img src="${image}" alt="${title}">
             <span style="font-size: 12px; color: gray;">${category}</span>
             <h4>${title}</h4>
-            <div class="price">$${price}</div>
+            <div class="price">₹${price}</div>
             <button class="add-to-cart-btn" onclick="addToCart(${id})">Add to Cart</button>
         `;
         
