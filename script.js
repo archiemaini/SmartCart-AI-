@@ -12,7 +12,7 @@
 
 // Topic 1: Variables (let, const) & Data Types (Array, Object)
 let allProducts = []; // Array to store all product
-const productGrid = document.getElementById('productGrid'); // Topic 8: DOM Manipulation
+const productGrids = document.getElementById('productGrid'); // Topic 8: DOM Manipulation
 
 // Topic 13 & 14: Async JS (Promises, Fetch)
 async function fetchProducts() {
@@ -27,18 +27,18 @@ async function fetchProducts() {
         renderProducts(allProducts);
     } catch (error) {
         console.error("Error fetching data:", error);
-        productGrid.innerHTML = "Failed to load products.";
+        productGrids.innerHTML = "Failed to load products.";
     }
 }
 
 // Topic 4: Functions (Declaration)
-function renderProducts(productsArray) {
+function renderProduct(productsArray) {
     // Clear the grid first
-    productGrid.innerHTML = '';
+    productGrids.innerHTML = '';
     
     // Topic 2: Conditions (if)
     if (productsArray.length === 0) {
-        productGrid.innerHTML = "<p>No products found.</p>";
+        productGrids.innerHTML = "<p>No products found.</p>";
         return;
     }
 
@@ -49,11 +49,11 @@ function renderProducts(productsArray) {
         const { id, title, price, category, image } = product;
 
         // Topic 8: DOM creation (createElement)
-        const card = document.createElement('div');
-        card.className = 'product-card';
+        const cards = document.createElement('div');
+        cards.className = 'product-card';
 
         // Topic 12: ES6 Template literals
-        card.innerHTML = `
+        cards.innerHTML = `
             <img src="${image}" alt="${title}">
             <span style="font-size: 12px; color: gray;">${category}</span>
             <h4>${title}</h4>
@@ -62,7 +62,7 @@ function renderProducts(productsArray) {
         `;
         
         // Append to DOM
-        productGrid.appendChild(card);
+        productGrids.appendChild(card);
     }
 }
 
@@ -81,7 +81,7 @@ const categoryFilter = document.getElementById('categoryFilter');
 const resetFiltersBtn = document.getElementById('resetFiltersBtn');
 
 // Topic 4: Functions (Arrow function)
-const filterProducts = () => {
+const filterProduct = () => {
     const searchText = searchInput.value.toLowerCase();
     const selectedCategory = categoryFilter.value;
 
@@ -103,17 +103,17 @@ const filterProducts = () => {
     });
 
     // Render the newly filtered array
-    renderProducts(filteredArray);
+    renderProduct(filteredArray);
 };
 
 // Topic 9: Events
-searchBtn.addEventListener('click', filterProducts);
-categoryFilter.addEventListener('change', filterProducts);
+searchBtn.addEventListener('click', filterProduct);
+categoryFilter.addEventListener('change', filterProduct);
 
 resetFiltersBtn.addEventListener('click', () => {
     searchInput.value = '';
     categoryFilter.value = 'all';
-    renderProducts(allProducts);
+    renderProduct(allProducts);
 });
 
 
