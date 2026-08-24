@@ -10,17 +10,17 @@
 // Topics: Variables, Data Types, Async JS, DOM
 // ==========================================
 
-// Topic 1: Variables (let, const) & Data Types (Array, Object)
+// Variables (let, const) & Data Types (Array, Object)
 let allProducts = []; // Array to store all product
 const productGrid = document.getElementById('productGrid'); // Topic 8: DOM Manipulation
 
-// Topic 13 & 14: Async JS (Promises, Fetch)
+// Async JS (Promises, Fetch)
 async function fetchProducts() {
     try {
-        // Topic 14: Fetch API
+        // Fetch API
         const response = await fetch('data.json');
         
-        // Topic 2: Type conversion / JSON parsing
+        // Type conversion / JSON parsing
         const data = await response.json(); 
         
         allProducts = data;
@@ -31,28 +31,28 @@ async function fetchProducts() {
     }
 }
 
-// Topic 4: Functions (Declaration)
+// Functions (Declaration)
 function renderProducts(productsArray) {
     // Clear the grid first
     productGrid.innerHTML = '';
     
-    // Topic 2: Conditions (if)
+    // Conditions (if)
     if (productsArray.length === 0) {
         productGrid.innerHTML = "<p>No products found.</p>";
         return;
     }
 
-    // Topic 3: Loops (for...of loop)
+    // Loops (for...of loop)
     for (const product of productsArray) {
         
-        // Topic 7: Objects & Destructuring
+        // Objects & Destructuring
         const { id, title, price, category, image } = product;
 
-        // Topic 8: DOM creation (createElement)
+        // DOM creation (createElement)
         const card = document.createElement('div');
         card.className = 'product-card';
 
-        // Topic 12: ES6 Template literals
+        // ES6 Template literals
         card.innerHTML = `
             <img src="${image}" alt="${title}">
             <span style="font-size: 12px; color: gray;">${category}</span>
@@ -80,14 +80,14 @@ const searchInput = document.getElementById('searchInput');
 const categoryFilter = document.getElementById('categoryFilter');
 const resetFiltersBtn = document.getElementById('resetFiltersBtn');
 
-// Topic 4: Functions (Arrow function)
+// Functions (Arrow function)
 const filterProducts = () => {
     const searchText = searchInput.value.toLowerCase();
     const selectedCategory = categoryFilter.value;
 
-    // Topic 6: Higher Order Functions (filter)
+    // Higher Order Functions (filter)
     const filteredArray = allProducts.filter(product => {
-        // Topic 2: Operators & Conditions
+        // Operators & Conditions
         const matchesSearch = product.title.toLowerCase().includes(searchText);
         
         // Simple if-else logic
@@ -106,7 +106,7 @@ const filterProducts = () => {
     renderProducts(filteredArray);
 };
 
-// Topic 9: Events
+// Events
 searchBtn.addEventListener('click', filterProducts);
 categoryFilter.addEventListener('change', filterProducts);
 
@@ -128,7 +128,7 @@ const cartItemsContainer = document.getElementById('cartItemsContainer');
 const cartTotal = document.getElementById('cartTotal');
 const cartSidebar = document.getElementById('cartSidebar');
 
-// Topic 11: Storage (load from localStorage)
+// Storage (load from localStorage)
 function loadCart() {
     const savedCart = localStorage.getItem('myCart');
     if (savedCart) {
@@ -137,20 +137,20 @@ function loadCart() {
     updateCartUI();
 }
 
-// Topic 11: Storage (save to localStorage)
+// Storage (save to localStorage)
 function saveCart() {
     localStorage.setItem('myCart', JSON.stringify(cart));
 }
 
-// Topic 5: Arrays (push)
+// Arrays (push)
 window.addToCart = function(productId) {
-    // Topic 1: explicit Type conversion
+    // Type conversion
     const idNum = Number(productId); 
     
     // Find the product to add
     let productToAdd = null;
     
-    // Topic 3: Loops (Standard for loop)
+    // Loops (Standard for loop)
     for (let i = 0; i < allProducts.length; i++) {
         if (allProducts[i].id === idNum) {
             productToAdd = allProducts[i];
@@ -166,7 +166,7 @@ window.addToCart = function(productId) {
     }
 };
 
-// Topic 5: Arrays (splice)
+// Arrays (splice)
 window.removeFromCart = function(index) {
     cart.splice(index, 1); // Remove 1 item at specific index
     saveCart();
@@ -180,7 +180,7 @@ function updateCartUI() {
     // Clear cart HTML
     cartItemsContainer.innerHTML = '';
 
-    // Topic 6: Higher Order Functions (map)
+    // Higher Order Functions (map)
     // Mapping cart array to HTML strings
     const cartHTMLArray = cart.map((item, index) => {
         return `
@@ -195,7 +195,7 @@ function updateCartUI() {
     // Join array into a single string
     cartItemsContainer.innerHTML = cartHTMLArray.join('');
 
-    // Topic 6: Higher Order Functions (reduce) for total price
+    // Higher Order Functions (reduce) for total price
     const total = cart.reduce((sum, item) => sum + item.price, 0);
     cartTotal.textContent = total.toFixed(2);
 }
@@ -224,7 +224,7 @@ const emailInput = document.getElementById('emailInput');
 const formSuccessMessage = document.getElementById('formSuccessMessage');
 
 contactForm.addEventListener('submit', function(event) {
-    // Topic 9: Events (preventDefault)
+    // Events (preventDefault)
     event.preventDefault(); 
     
     let isValid = true;
@@ -249,14 +249,14 @@ contactForm.addEventListener('submit', function(event) {
         formSuccessMessage.classList.remove('hidden');
         contactForm.reset(); // Clear form
         
-        // Topic 13: Async JS (setTimeout) to hide message after 3 seconds
+        // Async JS (setTimeout) to hide message after 3 seconds
         setTimeout(() => {
             formSuccessMessage.classList.add('hidden');
         }, 3000);
     }
 });
 
-// --- Simple Chatbot (Topic 2: Switch / If-Else) ---
+// --- Simple Chatbot (Switch / If-Else) ---
 const chatbotHeader = document.getElementById('chatbotHeader');
 const chatbotBody = document.getElementById('chatbotBody');
 const chatInput = document.getElementById('chatInput');
@@ -284,7 +284,7 @@ function handleChat() {
     } else if (text.includes('delivery')) {
         botReply = "We offer free delivery on orders over $50!";
     } else {
-        // Topic 2: Switch statement
+        // Switch statement
         switch (text) {
             case 'hello':
             case 'hi':
