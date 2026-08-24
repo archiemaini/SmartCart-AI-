@@ -30,7 +30,7 @@ This document precisely maps all 16 topics from the official JavaScript syllabus
 | **L 13-14** | Higher Order Functions (map, filter, reduce) | **Line 89-103** | `allProducts.filter(product => { ... })` to filter the catalog array. |
 
 ### Presentation Script Idea:
-> *"I built the search and filtering logic. Covering Lectures 9-10, I used modern Arrow Functions (Line 84). Inside, I implemented a Higher Order Function, `filter()` (Lectures 13-14), to sort the arrays. Inside my filter, I used extensive `if-else` Conditional Statements and Logical Operators (Lectures 3-4) to match text. Finally, I passed the filtered array into a standard Function Declaration (Lectures 7-8) to re-render the view."*
+> *"I developed the search and filtering logic for the application. Applying concepts from Lectures 9–10, I used modern arrow functions (Line 84) to structure the functionality. Within this, I leveraged the higher-order function filter() (Lectures 13–14) to process and refine the product array. The filtering logic was built using if-else conditional statements and logical operators (Lectures 3–4) to accurately match user input. Finally, the filtered results were passed into a standard function declaration (Lectures 7–8) to dynamically re-render the UI."*
 
 ---
 
