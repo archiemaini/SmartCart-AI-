@@ -285,7 +285,7 @@ function handleChat() {
     chatInput.value = '';
 
     // Bot Response Logic
-    let botReply = "I am a simple bot. Ask me about 'price', 'delivery', or 'hello'.";
+    let botReply = "I am a simple bot. Ask me about things like 'price', 'delivery', or 'hello'.";
 
     // Keyword matching using switch and if-else
     if (text.includes('price')) {
