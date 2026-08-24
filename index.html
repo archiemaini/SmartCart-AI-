@@ -77,6 +77,11 @@
                 <input type="email" id="emailInput" placeholder="Enter your email">
                 <span id="emailError" class="error-text hidden">Valid email is required.</span>
             </div>
+                <div class="form-group">
+                    <label for="messageInput">Feedback: </label>
+                    <textarea id="messageInput" rows="4" placeholder="Write your feedback here (min 10 chars)"></textarea>
+                    <span id="messageError" class="error-text hidden">Please enter at least 10 characters.</span>
+                </div>
             <button type="submit" id="submitFormBtn">Send Feedback</button>
             <p id="formSuccessMessage" class="success-text hidden">Thank you for your feedback!</p>
         </form>

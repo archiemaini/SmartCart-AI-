@@ -221,6 +221,7 @@ loadCart();
 const contactForm = document.getElementById('contactForm');
 const nameInput = document.getElementById('nameInput');
 const emailInput = document.getElementById('emailInput');
+const messageInput = document.getElementById('messageInput');
 const formSuccessMessage = document.getElementById('formSuccessMessage');
 
 contactForm.addEventListener('submit', function(event) {
@@ -245,9 +246,17 @@ contactForm.addEventListener('submit', function(event) {
         document.getElementById('emailError').classList.add('hidden');
     }
 
+    // Message validation (ensure user actually writes feedback)
+    if (!messageInput || messageInput.value.trim().length < 10) {
+        document.getElementById('messageError').classList.remove('hidden');
+        isValid = false;
+    } else {
+        document.getElementById('messageError').classList.add('hidden');
+    }
+
     if (isValid) {
         formSuccessMessage.classList.remove('hidden');
-        contactForm.reset(); // Clear form
+        contactForm.reset(); // Clear form (also clears message)
         
         // Async JS (setTimeout) to hide message after 3 seconds
         setTimeout(() => {

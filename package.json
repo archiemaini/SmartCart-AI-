@@ -1,0 +1,24 @@
+{
+  "name": "smartcart-ai-",
+  "version": "1.0.0",
+  "description": "SmartCart is a simple, clean, and highly readable e-commerce web application built entirely with **Vanilla JavaScript, HTML, and CSS**.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/archiemaini/SmartCart-AI-.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/archiemaini/SmartCart-AI-/issues"
+  },
+  "homepage": "https://github.com/archiemaini/SmartCart-AI-#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
