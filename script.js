@@ -11,7 +11,7 @@
 // ==========================================
 
 // Topic 1: Variables (let, const) & Data Types (Array, Object)
-let allProducts = []; // Array to store all products
+let allProducts = []; // Array to store all product
 const productGrid = document.getElementById('productGrid'); // Topic 8: DOM Manipulation
 
 // Topic 13 & 14: Async JS (Promises, Fetch)
