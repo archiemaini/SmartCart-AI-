@@ -12,13 +12,17 @@
 
 // Variables (let, const) & Data Types (Array, Object)
 let allProducts = []; // Array to store all product
-const productGrid = document.getElementById('productGrid'); // DOM Manipulation
+const productGrids = document.getElementById('productGrid'); // Topic 8: DOM Manipulation
 
 // Async JS (Promises, Fetch)
 async function fetchProducts() {
     try {
         // Fetch API
         const response = await fetch('data.json');
+
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
         
         // Type conversion / JSON parsing
         const data = await response.json(); 
@@ -27,18 +31,18 @@ async function fetchProducts() {
         renderProducts(allProducts);
     } catch (error) {
         console.error("Error fetching data:", error);
-        productGrid.innerHTML = "Failed to load products.";
+        productGrids.innerHTML = "Failed to load products.";
     }
 }
 
 // Functions (Declaration)
 function renderProducts(productsArray) {
     // Clear the grid first
-    productGrid.innerHTML = '';
+    productGrids.innerHTML = '';
     
     // Conditions (if)
     if (productsArray.length === 0) {
-        productGrid.innerHTML = "<p>No products found.</p>";
+        productGrids.innerHTML = "<p>No products found.</p>";
         return;
     }
 
@@ -62,7 +66,7 @@ function renderProducts(productsArray) {
         `;
         
         // Append to DOM
-        productGrid.appendChild(card);
+        productGrids.appendChild(card);
     }
 }
 
@@ -103,7 +107,7 @@ const filterProducts = () => {
     });
 
     // Render the newly filtered array
-    renderProducts(filteredArray);
+    renderProduct(filteredArray);
 };
 
 // Events
@@ -113,7 +117,7 @@ categoryFilter.addEventListener('change', filterProducts);
 resetFiltersBtn.addEventListener('click', () => {
     searchInput.value = '';
     categoryFilter.value = 'all';
-    renderProducts(allProducts);
+    renderProduct(allProducts);
 });
 
 
@@ -221,6 +225,7 @@ loadCart();
 const contactForm = document.getElementById('contactForm');
 const nameInput = document.getElementById('nameInput');
 const emailInput = document.getElementById('emailInput');
+const messageInput = document.getElementById('messageInput');
 const formSuccessMessage = document.getElementById('formSuccessMessage');
 
 contactForm.addEventListener('submit', function(event) {
@@ -245,9 +250,17 @@ contactForm.addEventListener('submit', function(event) {
         document.getElementById('emailError').classList.add('hidden');
     }
 
+    // Message validation (ensure user actually writes feedback)
+    if (!messageInput || messageInput.value.trim().length < 10) {
+        document.getElementById('messageError').classList.remove('hidden');
+        isValid = false;
+    } else {
+        document.getElementById('messageError').classList.add('hidden');
+    }
+
     if (isValid) {
         formSuccessMessage.classList.remove('hidden');
-        contactForm.reset(); // Clear form
+        contactForm.reset(); // Clear form (also clears message)
         
         // Async JS (setTimeout) to hide message after 3 seconds
         setTimeout(() => {
@@ -276,7 +289,7 @@ function handleChat() {
     chatInput.value = '';
 
     // Bot Response Logic
-    let botReply = "I am a simple bot. Ask me about 'price', 'delivery', or 'hello'.";
+    let botReply = "I am a simple bot. Ask me about things like 'price', 'delivery', or 'hello'.";
 
     // Keyword matching using switch and if-else
     if (text.includes('price')) {

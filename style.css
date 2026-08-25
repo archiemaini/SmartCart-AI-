@@ -358,6 +358,28 @@ header button:hover {
     background-color: white;
 }
 
+/* Make textarea visually match input fields */
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background-color: #f8fafc;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-group textarea:focus {
+    border-color: #38bdf8;
+    background-color: white;
+}
+
+.form-group textarea::placeholder {
+    color: #94a3b8;
+}
+
 .error-text {
     color: #ef4444;
     font-size: 13px;
