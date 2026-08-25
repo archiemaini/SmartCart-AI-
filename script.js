@@ -19,6 +19,10 @@ async function fetchProducts() {
     try {
         // Topic 14: Fetch API
         const response = await fetch('data.json');
+
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
         
         // Topic 2: Type conversion / JSON parsing
         const data = await response.json(); 
