@@ -19,6 +19,10 @@ async function fetchProducts() {
     try {
         // Fetch API
         const response = await fetch('data.json');
+
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
         
         // Type conversion / JSON parsing
         const data = await response.json(); 
