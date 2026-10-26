@@ -1,7 +1,6 @@
 /**
  * =====================================================================
  * Contributor: LAVANYA
- * Role: Lead Frontend UI/UX & Assistant Engineer
  * Syllabus Sessions: Sessions 46-48 (State Hooks, Form Events & Dynamic Rendering)
  * Feature: Floating AI Shopping Assistant Drawer & Interactive Recommendations
  * =====================================================================

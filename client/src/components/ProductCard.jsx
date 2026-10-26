@@ -1,7 +1,6 @@
 /**
  * =====================================================================
  * Contributor: LAVANYA
- * Role: Lead Frontend UI/UX & Assistant Engineer
  * Syllabus Sessions: Sessions 43-45 (Component Reusability & Props Communication)
  * Feature: Reusable Product Card with Rating, Price & Add-to-Cart Trigger
  * =====================================================================
