@@ -2,7 +2,6 @@
  * =====================================================================
  * Contributor: ARCHIE
  * Role: Order Management & State Specialist
- * Syllabus Sessions: Session 41 (Mongoose .populate() Display) & Session 39 (Protected Order History)
  * Feature: User Order History & Populated Mongoose Details Display
  * =====================================================================
  */
@@ -23,9 +22,6 @@ const STATUS_STYLES = {
 
 /**
  * Orders Component
- * Demonstrates:
- * - Session 41: MongoDB / Mongoose Populate (.populate('user', 'name email'))
- * - Session 39: Protected Routes (Fetching authenticated user orders)
  */
 export default function Orders() {
   const [orders, setOrders] = useState([]);

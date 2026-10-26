@@ -2,7 +2,6 @@
  * =====================================================================
  * Contributor: ARCHIE
  * Role: Order Management & State Specialist
- * Syllabus Sessions: Session 48 (Controlled Checkout Form) & Session 41 (Order Placement)
  * Feature: Shopping Cart View, Quantity Adjustments & Checkout Flow
  * =====================================================================
  */
@@ -16,18 +15,13 @@ import { formatPrice, handleImageError } from '../lib/format';
 
 /**
  * Cart Component
- * Demonstrates:
- * - Session 29-30: JavaScript Mini Project with LocalStorage & Form Handling
- * - Session 46-47: State Management using useState()
- * - Session 48: Controlled Components for Shipping Address
- * - Session 39 & 41: Protected Route Order Creation & MongoDB Storage
  */
 export default function Cart() {
   const navigate = useNavigate();
   const { items, totals, setQty, removeItem, clearCart } = useCart();
   const { isAuthenticated, user } = useAuth();
 
-  // Controlled form state for checkout (Session 48)
+
   const [address, setAddress] = useState('Chitkara University Campus, Chandigarh-Patiala National Highway');
   const [city, setCity] = useState('Rajpura');
   const [postalCode, setPostalCode] = useState('140401');
