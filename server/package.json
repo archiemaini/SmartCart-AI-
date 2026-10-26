@@ -1,0 +1,25 @@
+{
+  "name": "smartcart-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SmartCart — Express & MongoDB Backend for Chitkara Course Plan (24CAI0303)",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.19.1",
+    "multer": "^2.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
