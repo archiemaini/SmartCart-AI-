@@ -1,10 +1,3 @@
-/**
- * =====================================================================
- * Contributor: LAVANYA
- * Syllabus Sessions: Sessions 43-44 (Component Reusability & Semantic Layout)
- * Feature: Storefront Footer, Trust Badges & Category Links
- * =====================================================================
- */
 import { Sparkles, ShieldCheck, Truck, RefreshCw, Headphones } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

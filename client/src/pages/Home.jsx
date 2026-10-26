@@ -1,10 +1,3 @@
-/**
- * =====================================================================
- * Contributor: LAVANYA
- * Syllabus Sessions: Sessions 43-45 (Component Reusability & Props) & Sessions 46-48 (State Hooks & Event Handling)
- * Feature: Storefront Landing Page, Category Sidebar Filters & Hero Layout
- * =====================================================================
- */
 import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { SlidersHorizontal, PlusCircle, X, Sparkles, AlertCircle, RefreshCw, CheckSquare, Square, RotateCcw } from 'lucide-react';
@@ -30,7 +23,7 @@ export default function Home() {
   const [searchParams, setSearchParams] = useSearchParams();
   const search = searchParams.get('search') || '';
 
-  // State Management (Sessions 46-47)
+
   const [products, setProducts] = useState([]);
   const [filterMeta, setFilterMeta] = useState({ categories: [] });
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -40,17 +33,17 @@ export default function Home() {
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch filter metadata (categories with real counts)
+  
   const fetchFilterMeta = async () => {
     try {
       const meta = await api.getFilters();
       if (meta?.categories) setFilterMeta(meta);
     } catch {
-      // ignore
+      
     }
   };
 
-  // Fetch products from MongoDB REST API (Sessions 27-28 & 38)
+  
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -80,14 +73,14 @@ export default function Home() {
     fetchProducts();
   }, [search, selectedCategories, selectedMaxPrice, sortBy]);
 
-  // Toggle Category Checkbox
+  
   const toggleCategory = (catName) => {
     setSelectedCategories((prev) =>
       prev.includes(catName) ? prev.filter((c) => c !== catName) : [...prev, catName]
     );
   };
 
-  // Reset all filters
+  
   const resetFilters = () => {
     setSelectedCategories([]);
     setSelectedMaxPrice(null);
@@ -96,7 +89,7 @@ export default function Home() {
     setSearchParams(params);
   };
 
-  // Sync with Public API (DummyJSON) directly into MongoDB
+  
   const handleSyncPublic = async () => {
     try {
       setSyncing(true);
@@ -111,7 +104,7 @@ export default function Home() {
     }
   };
 
-  // Delete product handler (CRUD Delete API)
+  
   const handleDeleteProduct = async (id) => {
     if (!window.confirm('Delete this product from MongoDB?')) return;
     try {
@@ -127,18 +120,16 @@ export default function Home() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-      {/* ─────────────────────────────────────────────────────────────
-          HERO SECTION (Matches exact screenshot design & typography)
-          ───────────────────────────────────────────────────────────── */}
+     
       <section className="relative overflow-hidden rounded-3xl border border-neutral-200/70 bg-gradient-to-b from-[#fbfbfa] via-[#f4f9f6] to-[#faf9f7] p-8 sm:p-12 mb-10 shadow-xs">
         <div className="max-w-3xl">
-          {/* Pill Badge */}
+          
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-200/70 mb-5 shadow-xs">
             <Sparkles size={13} className="text-blue-500" />
             <span>AI comparison assistant</span>
           </div>
 
-          {/* Headline with Serif & Gradient Text */}
+          
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-neutral-900 font-serif leading-tight">
             Shopping, without the guesswork.
           </h1>
@@ -146,7 +137,7 @@ export default function Home() {
             Just tell us what you need.
           </p>
 
-          {/* Subtext */}
+          
           <p className="mt-4 text-sm sm:text-base text-neutral-600 leading-relaxed max-w-2xl">
             Describe what you're after — "a fast-charging USB-C cable under ₹500". Our assistant reads the
             request, searches the shelves, and lines up the three best matches side by side.
@@ -157,14 +148,12 @@ export default function Home() {
         <div className="absolute right-0 top-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-emerald-100/40 blur-3xl pointer-events-none" />
       </section>
 
-      {/* ─────────────────────────────────────────────────────────────
-          TWO-COLUMN LAYOUT: FILTERS SIDEBAR + PRODUCTS GRID
-          ───────────────────────────────────────────────────────────── */}
+      
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Left Sidebar: FILTERS (Matches screenshot sidebar) */}
+        
         <aside className="lg:col-span-1 space-y-6">
           <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-xs sticky top-24">
-            {/* Filter Header */}
+            
             <div className="flex items-center justify-between pb-3 border-b border-neutral-100 mb-4">
               <h2 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-800">
                 <SlidersHorizontal size={14} className="text-emerald-700" /> Filters
@@ -180,7 +169,7 @@ export default function Home() {
               )}
             </div>
 
-            {/* Categories Checkbox List */}
+            
             <div className="space-y-4">
               <div>
                 <h3 className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 mb-3">
@@ -281,7 +270,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Active Search Tag */}
+          
           {search && (
             <div className="flex items-center gap-2">
               <span className="text-xs text-neutral-500">Search results for:</span>
@@ -301,7 +290,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Loading Indicator */}
+         
           {loading && (
             <div className="py-24 flex flex-col items-center justify-center text-neutral-400 gap-3">
               <RefreshCw className="w-8 h-8 animate-spin text-emerald-600" />
@@ -309,7 +298,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Error Message */}
+          
           {error && !loading && (
             <div className="p-6 rounded-2xl bg-red-50 border border-red-200 text-center max-w-md mx-auto my-12">
               <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-2" />
@@ -323,7 +312,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Empty State */}
+          
           {!loading && !error && products.length === 0 && (
             <div className="py-20 text-center rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-8">
               <p className="text-sm font-bold text-neutral-800">No products match your filters</p>
@@ -337,7 +326,7 @@ export default function Home() {
             </div>
           )}
 
-          {/* Products Grid (Matches 3-4 column card grid from screenshot) */}
+          
           {!loading && !error && products.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
               {products.map((product) => (

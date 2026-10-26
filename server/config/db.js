@@ -1,17 +1,6 @@
-/**
- * =====================================================================
- * Contributor: KUNAL
- * Role: Lead Backend & Database Architect
- * Syllabus Sessions: Session 41 (MongoDB Connection & Mongoose Configuration)
- * Feature: MongoDB Database Connection Management
- * =====================================================================
- */
 import mongoose from 'mongoose';
 
-/**
- * Connect to MongoDB database using Mongoose
- * Demonstrates: Session 41 - MongoDB, MongoDB Atlas, CRUD Operations, Mongoose
- */
+
 export async function connectDB() {
   const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/smartcart';
 

@@ -1,10 +1,3 @@
-/**
- * =====================================================================
- * Contributor: LAVANYA
- * Syllabus Sessions: Sessions 43-45 (Component Organization, Search State & Props)
- * Feature: Top Navigation Bar, Search Input, Cart Counter & User Profile Header
- * =====================================================================
- */
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate, useSearchParams } from 'react-router-dom';
 import { LogOut, Package, Search, ShoppingCart, Sparkles, User, X, PlusCircle } from 'lucide-react';
@@ -72,7 +65,7 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Search Form */}
+        
         <form onSubmit={onSearch} className="relative min-w-0 flex-1 max-w-xl" role="search">
           <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
           <input
@@ -98,7 +91,7 @@ export default function Navbar() {
           )}
         </form>
 
-        {/* Add Product Button */}
+        
         <Link
           to="/add-product"
           className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 transition shadow-sm"
@@ -107,7 +100,7 @@ export default function Navbar() {
           <span className="hidden sm:inline">Add Product</span>
         </Link>
 
-        {/* Cart Icon */}
+        
         <Link
           to="/cart"
           className="relative grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-emerald-400 hover:text-emerald-700 transition"
@@ -121,7 +114,7 @@ export default function Navbar() {
           )}
         </Link>
 
-        {/* Orders Link */}
+        
         <Link
           to="/orders"
           className="hidden md:flex items-center gap-1.5 text-xs font-medium text-neutral-600 hover:text-neutral-900 px-2 py-2"
@@ -130,7 +123,7 @@ export default function Navbar() {
           <span>Orders</span>
         </Link>
 
-        {/* User Account / Login */}
+        
         {isAuthenticated ? (
           <div className="relative shrink-0" ref={menuRef}>
             <button

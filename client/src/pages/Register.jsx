@@ -1,11 +1,3 @@
-/**
- * =====================================================================
- * Contributor: KUNAL
- * Role: Lead Backend & Database Architect
- * Syllabus Sessions: Session 48 (Controlled Form Components & Event Handling)
- * Feature: User Registration Form & Validation Flow
- * =====================================================================
- */
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AlertCircle, Loader2, Lock, Mail, User } from 'lucide-react';

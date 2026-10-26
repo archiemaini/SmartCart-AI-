@@ -1,21 +1,9 @@
-/**
- * =====================================================================
- * Contributor: LAVANYA
- * Syllabus Sessions: Sessions 43-45 (Component Reusability & Props Communication)
- * Feature: Reusable Product Card with Rating, Price & Add-to-Cart Trigger
- * =====================================================================
- */
 import { Link } from 'react-router-dom';
 import { Check, ShoppingCart, Trash2, Star } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { formatPrice, discountPercent, handleImageError } from '../lib/format';
 
-/**
- * ProductCard Component (Matches user screenshot)
- * Demonstrates:
- * - Sessions 43-44: Functional Components & Component Reusability
- * - Session 45: Props & Parent-to-Child Communication (product data & onDelete handler)
- */
+
 export default function ProductCard({ product, onDelete }) {
   const { addItem, isInCart } = useCart();
   const inCart = isInCart(product._id);
@@ -24,7 +12,7 @@ export default function ProductCard({ product, onDelete }) {
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-xs transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-emerald-300">
-      {/* Product Image Container */}
+      
       <Link to={`/product/${product._id}`} className="relative block aspect-square overflow-hidden bg-neutral-50/80 p-4">
         <img
           src={product.image}
@@ -46,7 +34,7 @@ export default function ProductCard({ product, onDelete }) {
         )}
       </Link>
 
-      {/* Product Details */}
+      
       <div className="flex flex-1 flex-col gap-2.5 p-4">
         <div className="flex-1">
           <div className="flex items-center justify-between">
@@ -74,7 +62,7 @@ export default function ProductCard({ product, onDelete }) {
             </h3>
           </Link>
 
-          {/* Star Rating e.g. ★ 4.1 (4,401) */}
+          
           <div className="mt-2 flex items-center gap-1.5 text-xs">
             <div className="flex text-amber-400">
               {[...Array(5)].map((_, i) => (
@@ -90,7 +78,7 @@ export default function ProductCard({ product, onDelete }) {
           </div>
         </div>
 
-        {/* Pricing and Action Button */}
+        
         <div className="flex items-end justify-between gap-2 pt-2 border-t border-neutral-100">
           <div>
             <p className="text-base font-extrabold text-neutral-900">{formatPrice(product.price)}</p>

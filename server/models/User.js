@@ -1,20 +1,7 @@
-/**
- * =====================================================================
- * Contributor: KUNAL
- * Role: Lead Backend & Database Architect
- * Syllabus Sessions: Session 39 (bcrypt Password Hashing) & Session 41 (Mongoose Schemas & Validation)
- * Feature: User Model, Schema Validation & Password Hashing
- * =====================================================================
- */
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
-/**
- * User Schema
- * Demonstrates:
- * - Session 39: Validation, JWT Authentication, bcrypt
- * - Session 41: Mongoose Schemas, Models, Validation
- */
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -48,7 +35,7 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Hash password with bcrypt before saving to MongoDB (Session 39)
+
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(10);
@@ -56,12 +43,12 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// Compare password entered by user with hashed password in database
+
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Safe JSON representation without sensitive data
+
 userSchema.methods.toPublicJSON = function () {
   return {
     _id: this._id,

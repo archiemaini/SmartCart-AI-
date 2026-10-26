@@ -1,11 +1,3 @@
-/**
- * =====================================================================
- * Contributor: KUNAL
- * Role: Lead Backend & Database Architect
- * Syllabus Sessions: Sessions 29-30 (JWT Token Persistence) & Sessions 46-47 (React Context & State)
- * Feature: Authentication State Management & Session Hydration
- * =====================================================================
- */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { api, tokenStore } from '../lib/api';
 
@@ -13,8 +5,7 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  // `true` until the stored token has been checked, so protected routes don't
-  // bounce a logged-in user to /login during the first paint.
+  
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,7 +21,7 @@ export function AuthProvider({ children }) {
         const { user: me } = await api.me();
         if (!cancelled) setUser(me);
       } catch {
-        // Expired or tampered token — drop it silently.
+        
         tokenStore.clear();
       } finally {
         if (!cancelled) setLoading(false);

@@ -1,10 +1,3 @@
-/**
- * =====================================================================
- * Contributor: LAVANYA
- * Syllabus Sessions: Sessions 46-48 (State Hooks, Form Events & Dynamic Rendering)
- * Feature: Floating AI Shopping Assistant Drawer & Interactive Recommendations
- * =====================================================================
- */
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Send, Sparkles, Loader2, ShoppingCart, Check, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -75,7 +68,7 @@ export default function ChatWidget() {
 
   return (
     <>
-      {/* Floating Action Button (Matches bottom-right green bubble in screenshot) */}
+     
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
@@ -92,7 +85,7 @@ export default function ChatWidget() {
         </button>
       )}
 
-      {/* Chat Window Drawer */}
+      
       {isOpen && (
         <div className="fixed bottom-6 right-6 z-50 flex h-[580px] w-[min(94vw,390px)] flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-2xl animate-pop-in">
           {/* Header */}
@@ -116,7 +109,7 @@ export default function ChatWidget() {
             </button>
           </div>
 
-          {/* Messages Container */}
+          
           <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-neutral-50/50 text-xs">
             {messages.map((msg, idx) => (
               <div
@@ -133,7 +126,7 @@ export default function ChatWidget() {
                   <p className="whitespace-pre-line">{msg.text}</p>
                 </div>
 
-                {/* Render Recommended Product Cards Inside Chat */}
+                
                 {msg.products && msg.products.length > 0 && (
                   <div className="mt-2 w-full space-y-2">
                     {msg.products.map((p) => {
@@ -190,7 +183,7 @@ export default function ChatWidget() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Suggestion Chips */}
+          
           <div className="border-t border-neutral-200 bg-white px-3 py-2 overflow-x-auto flex gap-1.5 scroll-slim">
             {PRESET_QUERIES.map((q) => (
               <button
@@ -204,7 +197,7 @@ export default function ChatWidget() {
             ))}
           </div>
 
-          {/* Input Form */}
+         
           <form
             onSubmit={(e) => {
               e.preventDefault();
