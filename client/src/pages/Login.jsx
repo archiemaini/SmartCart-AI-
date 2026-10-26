@@ -1,11 +1,3 @@
-/**
- * =====================================================================
- * Contributor: KUNAL
- * Role: Lead Backend & Database Architect
- * Syllabus Sessions: Session 48 (Controlled Form Components & Event Handling)
- * Feature: User Sign-In Form & Authentication Flow
- * =====================================================================
- */
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AlertCircle, Loader2, Lock, Mail, Sparkles } from 'lucide-react';
@@ -88,7 +80,7 @@ export default function Login() {
   );
 }
 
-/** Shared chrome for the sign-in and sign-up screens. */
+
 export function AuthShell({ title, subtitle, children }) {
   return (
     <div className="mx-auto grid min-h-[75vh] max-w-md place-items-center px-4 py-12">

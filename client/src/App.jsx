@@ -1,10 +1,3 @@
-/**
- * =====================================================================
- * Contributor: LAVANYA
- * Syllabus Sessions: Session 42 (React SPA & Routing Setup)
- * Feature: Main Application Shell & Route Configuration
- * =====================================================================
- */
 import { Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -22,19 +15,13 @@ import Orders from './pages/Orders';
 import OrderSuccess from './pages/OrderSuccess';
 import NotFound from './pages/NotFound';
 
-/**
- * App Root Component
- * Demonstrates:
- * - Session 42: React Single Page Applications & Routing
- * - Session 43-44: Component Organization & Reusability
- */
 export default function App() {
   return (
     <div className="flex min-h-screen flex-col bg-neutral-50/50 text-neutral-900 font-sans">
-      {/* Reusable Navbar (Session 43-44) */}
+      
       <Navbar />
 
-      {/* Main Single Page Application Routes (Session 42) */}
+      
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -63,13 +50,13 @@ export default function App() {
         </Routes>
       </main>
 
-      {/* Footer */}
+      
       <Footer />
 
-      {/* Notification Toast */}
+      
       <CartToast />
 
-      {/* Floating AI Shopping Assistant (Matches Screenshot) */}
+      
       <ChatWidget />
     </div>
   );
