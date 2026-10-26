@@ -1,0 +1,165 @@
+@import 'tailwindcss';
+
+/* ──────────────────────────────────────────────────────────────
+   SmartCart design tokens
+
+   Bright, calm retail: a warm off-white canvas, white cards with
+   soft grey hairlines, and forest green as the single action
+   colour. Navy is reserved for AI surfaces so the assistant reads
+   as a distinct system rather than another green button.
+   ────────────────────────────────────────────────────────────── */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: 'Fraunces', 'Inter', ui-serif, Georgia, serif;
+
+  /* Canvas and surfaces */
+  --color-canvas: #faf9f7;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f5f4f1;
+
+  /* Warm neutral scale for borders and text */
+  --color-line: #e8e5e0;
+  --color-line-strong: #d6d2cb;
+  --color-muted: #8a8378;
+  --color-body: #57534e;
+  --color-heading: #1c1917;
+
+  /* Primary — forest green */
+  --color-brand-50: #f0f7f2;
+  --color-brand-100: #dcedE1;
+  --color-brand-200: #b9dcc4;
+  --color-brand-300: #8bc4a0;
+  --color-brand-400: #57a67b;
+  --color-brand-500: #2f8659;
+  --color-brand-600: #1f6b45;
+  --color-brand-700: #185437;
+  --color-brand-800: #14432d;
+
+  /* Accent — navy, used for AI surfaces */
+  --color-accent-50: #eef2fb;
+  --color-accent-100: #dae3f5;
+  --color-accent-200: #b9c9ec;
+  --color-accent-400: #5c7cc0;
+  --color-accent-500: #3a5da3;
+  --color-accent-600: #2b4780;
+  --color-accent-700: #1e3566;
+
+  --animate-fade-up: fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-pop-in: pop-in 0.25s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-canvas text-body font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight text-heading;
+  }
+
+  /* Consistent, visible focus ring across the whole app. */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+
+  ::selection {
+    @apply bg-brand-100 text-brand-800;
+  }
+}
+
+/* Declared as a utility rather than a plain class so the variants below can
+   `@apply btn` — Tailwind v4 only lets `@apply` reference real utilities. */
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold
+         transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@layer components {
+  .card {
+    @apply rounded-xl border border-line bg-surface;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand-600 text-white shadow-sm
+           hover:bg-brand-700 hover:shadow active:scale-[0.98];
+  }
+
+  .btn-accent {
+    @apply btn bg-accent-600 text-white shadow-sm hover:bg-accent-700 active:scale-[0.98];
+  }
+
+  .btn-ghost {
+    @apply btn border border-line-strong bg-surface text-body
+           hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700 active:scale-[0.98];
+  }
+
+  .input {
+    @apply w-full rounded-lg border border-line-strong bg-surface px-4 py-2.5 text-sm text-heading
+           placeholder:text-muted transition-colors
+           focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:outline-none;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold;
+  }
+
+  .scroll-slim {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+
+  .scroll-slim::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scroll-slim::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-line-strong;
+  }
+
+  .skeleton {
+    @apply rounded-lg bg-surface-sunken;
+    background-image: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.04), transparent);
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+}
