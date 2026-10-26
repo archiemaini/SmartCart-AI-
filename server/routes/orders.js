@@ -2,7 +2,6 @@
  * =====================================================================
  * Contributor: ARCHIE
  * Role: Order Management & State Specialist
- * Syllabus Sessions: Session 38 (Protected Order Routes) & Session 41 (Mongoose .populate())
  * Feature: Order Creation API & Order Retrieval with User/Product .populate()
  * =====================================================================
  */
@@ -16,7 +15,7 @@ const router = express.Router();
  * @route   POST /api/orders
  * @desc    Create a new order
  * @access  Private (Protected Route)
- * Demonstrates: Sessions 38-39 - Protected Routes, Mongoose document creation
+
  */
 router.post('/', protect, async (req, res, next) => {
   try {
@@ -26,7 +25,7 @@ router.post('/', protect, async (req, res, next) => {
       return res.status(400).json({ message: 'No order items provided' });
     }
 
-    // Calculate prices
+
     const itemsPrice = items.reduce((acc, item) => acc + item.price * item.qty, 0);
     const shippingPrice = itemsPrice > 500 ? 0 : 50; // Free shipping over 500
     const taxPrice = Math.round(itemsPrice * 0.18); // 18% GST/Tax
@@ -57,7 +56,7 @@ router.post('/', protect, async (req, res, next) => {
  * @route   GET /api/orders/mine
  * @desc    Get logged in user orders
  * @access  Private (Protected Route)
- * Demonstrates: Session 41 - Mongoose .populate() for User and Product references
+
  */
 router.get('/mine', protect, async (req, res, next) => {
   try {
@@ -76,7 +75,7 @@ router.get('/mine', protect, async (req, res, next) => {
  * @route   GET /api/orders
  * @desc    Get all orders (admin/all view)
  * @access  Public / Admin
- * Demonstrates: Session 41 - Mongoose .populate()
+
  */
 router.get('/', async (req, res, next) => {
   try {

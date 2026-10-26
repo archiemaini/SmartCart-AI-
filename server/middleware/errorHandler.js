@@ -2,7 +2,7 @@
  * =====================================================================
  * Contributor: ARCHIE
  * Role: Order Management & State Specialist
- * Syllabus Sessions: Session 39 (Centralized Error Handling Middleware)
+
  * Feature: 404 Handler & Global Error Handler (Mongoose CastError / ValidationError)
  * =====================================================================
  */
@@ -13,15 +13,15 @@ export function notFound(req, res, next) {
 }
 
 export function errorHandler(err, req, res, next) {
-  // If status code is 200, default to 500
+ 
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
 
-  // Handle Mongoose CastError (e.g., invalid ObjectId)
+  
   if (err.name === 'CastError' && err.kind === 'ObjectId') {
     return res.status(404).json({ message: 'Resource not found with specified ID' });
   }
 
-  // Handle Mongoose ValidationError
+
   if (err.name === 'ValidationError') {
     const messages = Object.values(err.errors).map((val) => val.message);
     return res.status(400).json({ message: messages.join(', ') });
