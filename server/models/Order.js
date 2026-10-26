@@ -2,7 +2,6 @@
  * =====================================================================
  * Contributor: ARCHIE
  * Role: Order Management & State Specialist
- * Syllabus Sessions: Session 41 (Mongoose References & .populate() Configuration)
  * Feature: Order Model & Schema References (User & Product Relationships)
  * =====================================================================
  */
@@ -10,7 +9,7 @@ import mongoose from 'mongoose';
 
 /**
  * Order Schema
- * Demonstrates: Session 41 - Mongoose Schemas, Validation, Relationships & Populate
+ * Demonstrates:Mongoose Schemas, Validation, Relationships & Populate
  */
 const orderItemSchema = new mongoose.Schema(
   {
@@ -31,7 +30,7 @@ const orderSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', // Reference to User model for .populate()
+      ref: 'User', 
       required: true,
     },
     items: {

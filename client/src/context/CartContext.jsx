@@ -2,7 +2,6 @@
  * =====================================================================
  * Contributor: ARCHIE
  * Role: Order Management & State Specialist
- * Syllabus Sessions: Sessions 29-30 (LocalStorage) & Sessions 46-47 (useReducer & State)
  * Feature: Cart Context, Reducer Actions & LocalStorage Persistence
  * =====================================================================
  */
