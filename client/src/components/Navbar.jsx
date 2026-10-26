@@ -1,7 +1,6 @@
 /**
  * =====================================================================
  * Contributor: LAVANYA
- * Role: Lead Frontend UI/UX & Assistant Engineer
  * Syllabus Sessions: Sessions 43-45 (Component Organization, Search State & Props)
  * Feature: Top Navigation Bar, Search Input, Cart Counter & User Profile Header
  * =====================================================================

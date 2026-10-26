@@ -1,7 +1,6 @@
 /**
  * =====================================================================
  * Contributor: LAVANYA
- * Role: Lead Frontend UI/UX & Assistant Engineer
  * Syllabus Sessions: Session 42 (React SPA & Routing Setup)
  * Feature: Main Application Shell & Route Configuration
  * =====================================================================

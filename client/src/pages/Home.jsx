@@ -1,7 +1,6 @@
 /**
  * =====================================================================
  * Contributor: LAVANYA
- * Role: Lead Frontend UI/UX & Assistant Engineer
  * Syllabus Sessions: Sessions 43-45 (Component Reusability & Props) & Sessions 46-48 (State Hooks & Event Handling)
  * Feature: Storefront Landing Page, Category Sidebar Filters & Hero Layout
  * =====================================================================
