@@ -1,23 +1,23 @@
 /**
- * Currency follows the loaded catalogue: the curated seed is USD, the Kaggle
- * Amazon import is INR. Set VITE_CURRENCY=INR in client/.env when seeding the
- * Kaggle dataset, otherwise ₹1,099 products will print as $1,099.
+ * Indian Rupee (₹ INR) currency and number formatting across the entire SmartCart store.
  */
-const CURRENCY = (import.meta.env.VITE_CURRENCY || 'USD').toUpperCase();
-const LOCALE = CURRENCY === 'INR' ? 'en-IN' : 'en-US';
-const SYMBOL = CURRENCY === 'INR' ? '₹' : '$';
+const CURRENCY = 'INR';
+const LOCALE = 'en-IN';
+const SYMBOL = '₹';
 
 const currencyFormatter = new Intl.NumberFormat(LOCALE, {
   style: 'currency',
   currency: CURRENCY,
-  minimumFractionDigits: 2,
+  minimumFractionDigits: 0,
   maximumFractionDigits: 2,
 });
 
-/** Whole units print without decimals: $18 / ₹1,099, but $6.99 keeps them. */
+/** Whole units print without decimals: ₹1,099, but ₹6.99 keeps them. */
 export function formatPrice(value) {
   const n = Number(value) || 0;
-  return Number.isInteger(n) ? `${SYMBOL}${n.toLocaleString(LOCALE)}` : currencyFormatter.format(n);
+  return Number.isInteger(n)
+    ? `₹${n.toLocaleString(LOCALE)}`
+    : `₹${n.toLocaleString(LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 /** Compact form for tight spaces like the comparison grid. */
