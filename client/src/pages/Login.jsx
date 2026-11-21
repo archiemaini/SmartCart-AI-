@@ -1,7 +1,16 @@
-import { useState } from 'react';
+/**
+ * =====================================================================
+ * Contributor: KUNAL
+ * Role: Lead Backend & Database Architect
+ * Syllabus Sessions: Session 48 (Controlled Form Components & Event Handling)
+ * Feature: User Sign-In Form & Live Email Existence Verification
+ * =====================================================================
+ */
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { AlertCircle, Loader2, Lock, Mail, Sparkles } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2, Lock, Mail, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../lib/api';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -9,15 +18,61 @@ export default function Login() {
   const { login } = useAuth();
 
   const [form, setForm] = useState({ email: '', password: '' });
+  const [emailStatus, setEmailStatus] = useState(null); // { type: 'error' | 'success' | 'loading', message: string }
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
 
   const redirectTo = location.state?.from || '/';
 
+  // Live email existence check as user types
+  useEffect(() => {
+    const raw = form.email.trim();
+    if (!raw) {
+      setEmailStatus(null);
+      return;
+    }
+
+    // Only query when email has an '@' and at least one dot in domain
+    if (!raw.includes('@') || raw.indexOf('@') === 0 || !raw.split('@')[1]?.includes('.')) {
+      setEmailStatus(null);
+      return;
+    }
+
+    setEmailStatus({ type: 'loading', message: 'Checking email...' });
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await api.checkEmail(raw, 'login');
+        if (!res.valid) {
+          setEmailStatus({
+            type: 'error',
+            message: res.message || 'This email does not exist',
+          });
+        } else {
+          setEmailStatus({
+            type: 'success',
+            message: `Account found for ${res.userName || 'user'}`,
+          });
+        }
+      } catch (err) {
+        setEmailStatus(null);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [form.email]);
+
   async function onSubmit(e) {
     e.preventDefault();
     setBusy(true);
     setError(null);
+
+    // If live check already confirmed the email does not exist, alert user immediately
+    if (emailStatus?.type === 'error') {
+      setError(emailStatus.message);
+      setBusy(false);
+      return;
+    }
 
     try {
       await login(form);
@@ -38,7 +93,11 @@ export default function Login() {
           label="Email"
           value={form.email}
           autoComplete="email"
-          onChange={(v) => setForm({ ...form, email: v })}
+          status={emailStatus}
+          onChange={(v) => {
+            setForm({ ...form, email: v });
+            if (error) setError(null);
+          }}
         />
         <Field
           icon={Lock}
@@ -46,13 +105,16 @@ export default function Login() {
           label="Password"
           value={form.password}
           autoComplete="current-password"
-          onChange={(v) => setForm({ ...form, password: v })}
+          onChange={(v) => {
+            setForm({ ...form, password: v });
+            if (error) setError(null);
+          }}
         />
 
         {error && (
-          <p className="flex items-start gap-2 rounded-lg bg-rose-50 px-3 py-2.5 text-xs text-rose-700">
+          <p className="flex items-start gap-2 rounded-lg bg-rose-50 px-3 py-2.5 text-xs text-rose-700 border border-rose-200">
             <AlertCircle size={14} className="mt-0.5 shrink-0" />
-            {error}
+            <span>{error}</span>
           </p>
         )}
 
@@ -64,10 +126,10 @@ export default function Login() {
 
       <button
         type="button"
-        onClick={() => setForm({ email: 'demo@smartcart.com', password: 'demo1234' })}
+        onClick={() => setForm({ email: 'shopper@smartcart.com', password: 'shopper1234' })}
         className="mt-3 w-full rounded-lg border border-dashed border-line px-3 py-2.5 text-xs text-muted transition-colors hover:border-brand-400 hover:text-brand-700"
       >
-        Use the seeded demo account (demo@smartcart.com)
+        Use the demo customer account (shopper@smartcart.com)
       </button>
 
       <p className="mt-6 text-center text-sm text-muted">
@@ -80,7 +142,7 @@ export default function Login() {
   );
 }
 
-
+/** Shared chrome for the sign-in and sign-up screens. */
 export function AuthShell({ title, subtitle, children }) {
   return (
     <div className="mx-auto grid min-h-[75vh] max-w-md place-items-center px-4 py-12">
@@ -98,14 +160,38 @@ export function AuthShell({ title, subtitle, children }) {
   );
 }
 
-export function Field({ icon: Icon, label, type = 'text', value, onChange, autoComplete, minLength }) {
+export function Field({
+  icon: Icon,
+  label,
+  type = 'text',
+  value,
+  onChange,
+  onBlur,
+  autoComplete,
+  minLength,
+  status, // { type: 'error' | 'success' | 'loading', message: string }
+}) {
   const id = `field-${label.toLowerCase().replace(/\s+/g, '-')}`;
+
+  const borderClass = status?.type === 'error'
+    ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-200'
+    : status?.type === 'success'
+    ? 'border-emerald-400 focus:border-emerald-500 focus:ring-emerald-200'
+    : '';
 
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-muted">
-        {label}
-      </label>
+      <div className="flex items-center justify-between mb-1.5">
+        <label htmlFor={id} className="block text-xs font-bold uppercase tracking-wider text-muted">
+          {label}
+        </label>
+        {status?.type === 'loading' && (
+          <span className="flex items-center gap-1 text-[11px] text-muted">
+            <Loader2 size={11} className="animate-spin text-brand-600" />
+            <span>Checking...</span>
+          </span>
+        )}
+      </div>
       <div className="relative">
         <Icon size={15} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
         <input
@@ -116,9 +202,27 @@ export function Field({ icon: Icon, label, type = 'text', value, onChange, autoC
           minLength={minLength}
           autoComplete={autoComplete}
           onChange={(e) => onChange(e.target.value)}
-          className="input pl-10"
+          onBlur={onBlur}
+          className={`input pl-10 ${borderClass}`}
         />
+        {status?.type === 'error' && (
+          <AlertCircle size={15} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-rose-500" />
+        )}
+        {status?.type === 'success' && (
+          <CheckCircle2 size={15} className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-emerald-600" />
+        )}
       </div>
+      {status && status.message && status.type !== 'loading' && (
+        <p
+          className={`mt-1.5 flex items-center gap-1.5 text-xs font-semibold ${
+            status.type === 'error' ? 'text-rose-600' : 'text-emerald-700'
+          }`}
+        >
+          {status.type === 'error' && <AlertCircle size={13} className="shrink-0" />}
+          {status.type === 'success' && <CheckCircle2 size={13} className="shrink-0" />}
+          <span>{status.message}</span>
+        </p>
+      )}
     </div>
   );
 }

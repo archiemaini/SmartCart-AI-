@@ -1,13 +1,33 @@
+/**
+ * =====================================================================
+ * Storefront Navigation Bar
+ * Features:
+ * - Search with URL syncing
+ * - Personalized Recommendations Shortcut
+ * - Admin Panel Link for Authorized Admin Role (Feature 5)
+ * - Cart Counter & Persistent Session Dropdown
+ * =====================================================================
+ */
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate, useSearchParams } from 'react-router-dom';
-import { LogOut, Package, Search, ShoppingCart, Sparkles, User, X, PlusCircle } from 'lucide-react';
+import {
+  LogOut,
+  Package,
+  Search,
+  ShoppingCart,
+  Sparkles,
+  User,
+  X,
+  ShieldCheck,
+  Compass,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   const { count } = useCart();
 
   const [term, setTerm] = useState(searchParams.get('search') || '');
@@ -51,7 +71,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/95 backdrop-blur-md">
       <nav className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2.5 sm:gap-4 sm:px-6">
-        {/* Logo */}
+        {/* Brand Logo */}
         <Link
           to="/"
           className="flex shrink-0 items-center gap-2 px-2.5 py-1 rounded-xl border border-neutral-200 bg-white shadow-2xs hover:border-emerald-400 transition"
@@ -65,14 +85,14 @@ export default function Navbar() {
           </span>
         </Link>
 
-        
+        {/* Global Semantic Search Bar */}
         <form onSubmit={onSearch} className="relative min-w-0 flex-1 max-w-xl" role="search">
-          <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
+          <Sparkles size={15} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-emerald-600" />
           <input
             type="search"
             value={term}
             onChange={(e) => setTerm(e.target.value)}
-            placeholder="Search electronics, computers, home & kitchen…"
+            placeholder="Semantic search (e.g. lightweight laptop, pro camera phone, cookware)…"
             className="w-full rounded-xl border border-neutral-200 bg-neutral-50/80 py-2 pl-9 pr-9 text-xs sm:text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition"
           />
           {term && (
@@ -91,16 +111,41 @@ export default function Navbar() {
           )}
         </form>
 
-        
-        <Link
-          to="/add-product"
-          className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 transition shadow-sm"
+        {/* Recommendations Link (Feature 4) */}
+        <NavLink
+          to="/recommendations"
+          className={({ isActive }) =>
+            `flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl transition ${
+              isActive
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                : 'text-neutral-700 hover:text-emerald-800 hover:bg-neutral-50'
+            }`
+          }
         >
-          <PlusCircle size={15} />
-          <span className="hidden sm:inline">Add Product</span>
-        </Link>
+          <Compass size={15} className="text-emerald-700" />
+          <span className="hidden sm:inline">Recommendations</span>
+        </NavLink>
 
-        
+        {/* Admin Dashboard Link (Feature 5: Role-Based Access Control) */}
+        {isAdmin && (
+          <NavLink
+            to="/admin"
+            className={({ isActive }) =>
+              `flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl transition ${
+                isActive
+                  ? 'bg-neutral-900 text-white'
+                  : 'bg-emerald-800 text-white hover:bg-emerald-900 shadow-xs'
+              }`
+            }
+          >
+            <ShieldCheck size={15} />
+            <span className="hidden md:inline">Admin Panel</span>
+          </NavLink>
+        )}
+
+
+
+        {/* Shopping Cart Link */}
         <Link
           to="/cart"
           className="relative grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-neutral-200 bg-neutral-50 text-neutral-700 hover:border-emerald-400 hover:text-emerald-700 transition"
@@ -114,16 +159,16 @@ export default function Navbar() {
           )}
         </Link>
 
-        
+        {/* Orders Link */}
         <Link
           to="/orders"
-          className="hidden md:flex items-center gap-1.5 text-xs font-medium text-neutral-600 hover:text-neutral-900 px-2 py-2"
+          className="hidden lg:flex items-center gap-1.5 text-xs font-medium text-neutral-600 hover:text-neutral-900 px-2 py-2"
         >
           <Package size={15} />
           <span>Orders</span>
         </Link>
 
-        
+        {/* User Profile / Authentication Menu */}
         {isAuthenticated ? (
           <div className="relative shrink-0" ref={menuRef}>
             <button
@@ -131,20 +176,44 @@ export default function Navbar() {
               onClick={() => setMenuOpen((v) => !v)}
               className="flex h-9 items-center gap-2 rounded-xl border border-neutral-200 bg-neutral-50 px-2.5 text-neutral-800 hover:border-emerald-400 transition"
             >
-              <span className="grid h-6 w-6 place-items-center rounded-full bg-emerald-700 text-[11px] font-bold text-white">
-                {user.name.charAt(0).toUpperCase()}
+              <span className="grid h-6 w-6 place-items-center rounded-full bg-emerald-800 text-[11px] font-bold text-white">
+                {user.name?.charAt(0).toUpperCase()}
               </span>
               <span className="hidden max-w-24 truncate text-xs font-medium sm:block">
-                {user.name.split(' ')[0]}
+                {user.name?.split(' ')[0]}
               </span>
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-48 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xl z-50 animate-pop-in">
+              <div className="absolute right-0 mt-2 w-52 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl z-50 animate-pop-in">
                 <div className="border-b border-neutral-100 px-4 py-3 bg-neutral-50">
-                  <p className="truncate text-xs font-semibold text-neutral-900">{user.name}</p>
-                  <p className="truncate text-[11px] text-neutral-500">{user.email}</p>
+                  <div className="flex items-center justify-between">
+                    <p className="truncate text-xs font-bold text-neutral-900">{user.name}</p>
+                    <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded uppercase ${isAdmin ? 'bg-emerald-100 text-emerald-800' : 'bg-neutral-200 text-neutral-700'}`}>
+                      {user.role}
+                    </span>
+                  </div>
+                  <p className="truncate text-[11px] text-neutral-500 mt-0.5">{user.email}</p>
                 </div>
+
+                {isAdmin && (
+                  <NavLink
+                    to="/admin"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-emerald-800 bg-emerald-50/60 hover:bg-emerald-100"
+                  >
+                    <ShieldCheck size={14} /> Admin Dashboard
+                  </NavLink>
+                )}
+
+                <NavLink
+                  to="/recommendations"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50"
+                >
+                  <Sparkles size={14} className="text-emerald-700" /> Recommendations
+                </NavLink>
+
                 <NavLink
                   to="/orders"
                   onClick={() => setMenuOpen(false)}
@@ -152,6 +221,7 @@ export default function Navbar() {
                 >
                   <Package size={14} /> My Orders
                 </NavLink>
+
                 <button
                   type="button"
                   onClick={onLogout}
@@ -165,7 +235,7 @@ export default function Navbar() {
         ) : (
           <Link
             to="/login"
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-neutral-700 hover:text-neutral-900 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-neutral-800 hover:text-neutral-900 border border-neutral-200 rounded-xl hover:bg-neutral-50 transition"
           >
             <User size={15} />
             <span>Sign in</span>

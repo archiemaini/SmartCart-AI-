@@ -1,3 +1,11 @@
+/**
+ * =====================================================================
+ * Contributor: LAVANYA
+ * Role: Lead Frontend UI/UX & Assistant Engineer
+ * Syllabus Sessions: Sessions 27-28 (Dynamic Fetch) & Sessions 43-45 (Component Props & Reusability)
+ * Feature: Product Detail View, Image Zoom, Pricing & Related Suggestions
+ * =====================================================================
+ */
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Check, Loader2, Minus, Plus, ShieldCheck, ShoppingCart, Truck, Tag } from 'lucide-react';
@@ -7,7 +15,13 @@ import { formatPrice, discountPercent, handleImageError } from '../lib/format';
 import Rating from '../components/Rating';
 import ProductCard from '../components/ProductCard';
 
-
+/**
+ * ProductDetail Component
+ * Demonstrates:
+ * - Session 27-28: Fetch API consumption with useParams()
+ * - Session 42-45: Single page routing, props passing
+ * - Sessions 46-47: Local state with useState()
+ */
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -77,7 +91,7 @@ export default function ProductDetail() {
       </button>
 
       <div className="grid gap-10 lg:grid-cols-2">
-        
+        {/* Product Image */}
         <div className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm h-fit">
           <div className="relative aspect-4/3 overflow-hidden rounded-2xl bg-neutral-100">
             <img
@@ -94,7 +108,7 @@ export default function ProductDetail() {
           </div>
         </div>
 
-       
+        {/* Product Info */}
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-[11px] font-bold uppercase tracking-wider border border-emerald-200">
@@ -114,7 +128,7 @@ export default function ProductDetail() {
             {product.description || 'Premium quality product with comprehensive manufacturer warranty and authentic specifications.'}
           </p>
 
-          
+          {/* Pricing */}
           <div className="mt-6 flex items-baseline gap-3">
             <span className="text-3xl font-extrabold text-neutral-900">{formatPrice(product.price)}</span>
             {off > 0 && (
@@ -180,7 +194,7 @@ export default function ProductDetail() {
             </button>
           </div>
 
-          
+          {/* Perks */}
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
             <div className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3">
               <Truck size={18} className="text-emerald-700 shrink-0" />
@@ -200,7 +214,7 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      
+      {/* Related Products */}
       {related?.length > 0 && (
         <section className="mt-16 pt-10 border-t border-neutral-200">
           <h2 className="text-lg font-bold text-neutral-900 mb-6">More in {product.category}</h2>

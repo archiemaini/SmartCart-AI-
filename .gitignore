@@ -18,6 +18,5 @@ yarn-error.log*
 .vscode/
 *.swp
 
-# vite cache
-.vite/
-
+# mongodb-memory-server binary cache
+.cache/

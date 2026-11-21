@@ -1,17 +1,21 @@
 /**
  * =====================================================================
- * Contributor: ARNAV
- * Role: Product Backend & Storage Engineer
- * Syllabus Sessions: Session 41 (Mongoose Schemas, Validation & Text Indexing)
- * Feature: Product Model, Validation Schema & Search Indexing
+ * Product Model with INR Pricing, Stock Management, Reviews,
+ * Tags & Vector Embeddings for AI-Powered RAG Retrieval
  * =====================================================================
  */
 import mongoose from 'mongoose';
 
-/**
- * Product Schema
- * Demonstrates: Session 41 - Mongoose Schemas, Models, Validation
- */
+const reviewSchema = new mongoose.Schema(
+  {
+    reviewerName: { type: String, default: 'Verified Buyer' },
+    rating: { type: Number, required: true, min: 1, max: 5 },
+    comment: { type: String, default: '' },
+    date: { type: Date, default: Date.now },
+  },
+  { _id: false }
+);
+
 const productSchema = new mongoose.Schema(
   {
     title: {
@@ -31,7 +35,7 @@ const productSchema = new mongoose.Schema(
     },
     price: {
       type: Number,
-      required: [true, 'Price is required'],
+      required: [true, 'Price in INR is required'],
       min: [0, 'Price cannot be negative'],
     },
     mrp: {
@@ -46,7 +50,11 @@ const productSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      required: [true, 'Product image URL or upload is required'],
+      required: [true, 'Main product image is required'],
+    },
+    images: {
+      type: [String],
+      default: [],
     },
     rating: {
       type: Number,
@@ -59,19 +67,37 @@ const productSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    reviews: [reviewSchema],
     countInStock: {
       type: Number,
       required: [true, 'Stock count is required'],
       min: [0, 'Stock cannot be negative'],
       default: 10,
     },
+    tags: {
+      type: [String],
+      default: [],
+    },
+    specifications: {
+      type: Map,
+      of: String,
+      default: {},
+    },
+    // Dense Vector Embedding for RAG similarity search (Feature 3)
+    embedding: {
+      type: [Number],
+      select: false, // Omit from default lightweight queries
+      default: undefined,
+    },
   },
   {
-    timestamps: true, // Automatically manages createdAt and updatedAt
+    timestamps: true,
   }
 );
 
-// Text index for search functionality (Session 38 & 41)
-productSchema.index({ title: 'text', description: 'text', brand: 'text', category: 'text' });
+// Search indexes
+productSchema.index({ title: 'text', description: 'text', brand: 'text', category: 'text', tags: 'text' });
+productSchema.index({ category: 1, price: 1 });
+productSchema.index({ rating: -1 });
 
 export default mongoose.model('Product', productSchema);

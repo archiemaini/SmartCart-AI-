@@ -1,53 +1,47 @@
 /**
  * =====================================================================
- * Contributor: ARCHIE
- * Role: Order Management & State Specialist
- * Feature: Cart Context, Reducer Actions & LocalStorage Persistence
+ * Shopping Cart Context with Persistent Storage (Feature 7 & Core)
+ * Preserves cart items across sessions, logouts, and logins.
+ * Syncs seamlessly between LocalStorage and MongoDB backend.
  * =====================================================================
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useState } from 'react';
+import { api, tokenStore } from '../lib/api';
 
 const CartContext = createContext(null);
+const STORAGE_KEY = 'smartcart.cart.v2';
 
-const STORAGE_KEY = 'smartcart.cart';
-// Mirror of server/services/pricing.js. The server recomputes every total at
-// checkout — these exist only so the cart summary matches what will be charged.
-// Number('') is 0, not NaN — an empty `TAX_RATE=` in client/.env must fall back, not
-// silently zero the tax.
-const num = (v, fallback) => {
-  if (v == null || String(v).trim() === '') return fallback;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : fallback;
-};
+const TAX_RATE = 0.18; // 18% GST
+const FREE_SHIPPING_THRESHOLD = 500; // Free shipping over ₹500
+const FLAT_SHIPPING = 50; // ₹50 flat rate
 
-const TAX_RATE = num(import.meta.env.VITE_TAX_RATE, 0.08);
-const FREE_SHIPPING_THRESHOLD = num(import.meta.env.VITE_FREE_SHIPPING_THRESHOLD, 75);
-const FLAT_SHIPPING = num(import.meta.env.VITE_FLAT_SHIPPING, 6.99);
-
-/** Cart lines keep a snapshot of the product so the cart renders offline. */
 function toLine(product, qty) {
   return {
-    _id: product._id,
+    _id: product._id || product.id,
     title: product.title,
     image: product.image,
-    price: product.price,
-    brand: product.brand,
-    category: product.category,
-    countInStock: product.countInStock ?? 99,
+    price: Number(product.price),
+    brand: product.brand || 'Generic',
+    category: product.category || 'General',
+    countInStock: product.countInStock !== undefined ? product.countInStock : 99,
     qty,
   };
 }
 
 function reducer(state, action) {
   switch (action.type) {
+    case 'SET_ITEMS':
+      return action.items;
+
     case 'ADD': {
       const { product, qty } = action;
-      const existing = state.find((i) => i._id === product._id);
-      const max = product.countInStock ?? 99;
+      const pid = product._id || product.id;
+      const existing = state.find((i) => i._id === pid);
+      const max = product.countInStock !== undefined ? product.countInStock : 99;
 
       if (existing) {
         return state.map((i) =>
-          i._id === product._id ? { ...i, qty: Math.min(i.qty + qty, max) } : i
+          i._id === pid ? { ...i, qty: Math.min(i.qty + qty, max) } : i
         );
       }
       return [...state, toLine(product, Math.min(qty, max))];
@@ -55,7 +49,9 @@ function reducer(state, action) {
 
     case 'SET_QTY': {
       const qty = Math.max(1, action.qty);
-      return state.map((i) => (i._id === action.id ? { ...i, qty: Math.min(qty, i.countInStock) } : i));
+      return state.map((i) =>
+        i._id === action.id ? { ...i, qty: Math.min(qty, i.countInStock || 99) } : i
+      );
     }
 
     case 'REMOVE':
@@ -75,28 +71,76 @@ function readStoredCart() {
     const parsed = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed : [];
   } catch {
-    // Corrupt or unavailable storage shouldn't take the app down.
     return [];
   }
 }
 
 export function CartProvider({ children }) {
   const [items, dispatch] = useReducer(reducer, undefined, readStoredCart);
-  // Transient "Added to cart" confirmation, mostly for adds made from the chat
-  // widget where the cart icon is off-screen.
   const [notice, setNotice] = useState(null);
 
+  // Hydrate cart from backend upon session start or login
+  useEffect(() => {
+    let cancelled = false;
+    async function syncFromServer() {
+      if (!tokenStore.get()) return;
+      try {
+        const { cart } = await api.getCart();
+        if (!cancelled && cart && Array.isArray(cart) && cart.length > 0) {
+          // Merge server items with local items
+          const currentLocal = readStoredCart();
+          const mergedMap = new Map();
+          for (const item of cart) {
+            mergedMap.set(item.product?._id || item._id, {
+              _id: item.product?._id || item._id,
+              title: item.title,
+              image: item.image,
+              price: item.price,
+              brand: item.brand,
+              category: item.category,
+              countInStock: item.countInStock ?? 99,
+              qty: item.qty || 1,
+            });
+          }
+          for (const item of currentLocal) {
+            if (!mergedMap.has(item._id)) {
+              mergedMap.set(item._id, item);
+            }
+          }
+          const merged = Array.from(mergedMap.values());
+          dispatch({ type: 'SET_ITEMS', items: merged });
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    syncFromServer();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Save to LocalStorage and MongoDB
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
     } catch {
-      /* storage full or blocked — the in-memory cart still works */
+      /* ignore */
+    }
+
+    // Debounced sync to MongoDB if logged in (Shopping Cart Persistence)
+    if (tokenStore.get()) {
+      const timer = setTimeout(() => {
+        api.syncCart(items).catch(() => {});
+      }, 1000);
+      return () => clearTimeout(timer);
     }
   }, [items]);
 
   useEffect(() => {
     if (!notice) return undefined;
-    const id = setTimeout(() => setNotice(null), 2600);
+    const id = setTimeout(() => setNotice(null), 2800);
     return () => clearTimeout(id);
   }, [notice]);
 
@@ -107,21 +151,25 @@ export function CartProvider({ children }) {
 
   const setQty = useCallback((id, qty) => dispatch({ type: 'SET_QTY', id, qty }), []);
   const removeItem = useCallback((id) => dispatch({ type: 'REMOVE', id }), []);
-  const clearCart = useCallback(() => dispatch({ type: 'CLEAR' }), []);
+  const clearCart = useCallback(() => {
+    dispatch({ type: 'CLEAR' });
+    if (tokenStore.get()) {
+      api.syncCart([]).catch(() => {});
+    }
+  }, []);
   const dismissNotice = useCallback(() => setNotice(null), []);
 
   const totals = useMemo(() => {
     const itemsPrice = items.reduce((sum, i) => sum + i.price * i.qty, 0);
     const shippingPrice = itemsPrice === 0 || itemsPrice >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_SHIPPING;
-    const taxPrice = Math.round(itemsPrice * TAX_RATE * 100) / 100;
+    const taxPrice = Math.round(itemsPrice * TAX_RATE);
+    const totalPrice = itemsPrice + shippingPrice + taxPrice;
 
     return {
       itemsPrice,
       shippingPrice,
       taxPrice,
-      // Round the sum, not just the parts — floating-point cents otherwise
-      // surface as $91.99000000000001 in the summary.
-      totalPrice: Math.round((itemsPrice + shippingPrice + taxPrice) * 100) / 100,
+      totalPrice,
       freeShippingGap: Math.max(0, FREE_SHIPPING_THRESHOLD - itemsPrice),
     };
   }, [items]);

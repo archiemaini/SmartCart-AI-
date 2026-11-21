@@ -20,5 +20,8 @@
     "@vitejs/plugin-react": "^5.0.4",
     "tailwindcss": "^4.1.16",
     "vite": "^7.1.12"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-darwin-arm64": "^4.68.7"
   }
 }
