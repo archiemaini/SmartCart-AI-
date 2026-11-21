@@ -14,8 +14,8 @@ import { generateEmbedding } from './services/ragService.js';
 
 const DEMO_ADMIN = {
   name: 'Admin Manager',
-  email: 'admin@smartcart.com',
-  password: 'admin1234',
+  email: 'smartcartindia99@gmail.com',
+  password: 'ArnavGupta@123',
   role: 'admin',
   addresses: [
     {
