@@ -1,12 +1,9 @@
 /**
  * =====================================================================
- * Contributor: LAVANYA
- * Role: Lead Frontend UI/UX & Assistant Engineer
- * Syllabus Sessions: Sessions 43-44 (Component Reusability & Semantic Layout)
  * Feature: Storefront Footer, Trust Badges & Category Links
  * =====================================================================
  */
-import { Sparkles, ShieldCheck, Truck, RefreshCw, Headphones } from 'lucide-react';
+import { Sparkles, ShieldCheck, Truck, CreditCard, Headphones } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Footer() {
@@ -37,11 +34,11 @@ export default function Footer() {
 
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-100 text-emerald-800">
-              <RefreshCw size={18} />
+              <CreditCard size={18} />
             </div>
             <div>
-              <p className="text-xs font-bold text-neutral-900">7-Day Easy Returns</p>
-              <p className="text-[11px] text-neutral-500">Hassle-free replacement policy</p>
+              <p className="text-xs font-bold text-neutral-900">100% Secure Checkout</p>
+              <p className="text-[11px] text-neutral-500">UPI, Cards & NetBanking</p>
             </div>
           </div>
 
@@ -89,7 +86,6 @@ export default function Footer() {
           <ul className="space-y-2 text-xs text-neutral-500">
             <li><Link to="/orders" className="hover:text-emerald-700 transition">Track Your Order</Link></li>
             <li><span className="cursor-pointer hover:text-emerald-700 transition">Shipping & Delivery</span></li>
-            <li><span className="cursor-pointer hover:text-emerald-700 transition">Returns & Replacements</span></li>
             <li><span className="cursor-pointer hover:text-emerald-700 transition">Help Center & FAQs</span></li>
             <li><span className="cursor-pointer hover:text-emerald-700 transition">Contact Us</span></li>
           </ul>

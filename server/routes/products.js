@@ -22,7 +22,7 @@ const router = express.Router();
  */
 router.get('/', optionalAuth, async (req, res, next) => {
   try {
-    const { search = '', category = '', minPrice, maxPrice, sort = search.trim() ? 'relevance' : 'newest' } = req.query;
+    const { search = '', category = '', minPrice, maxPrice, sort = search.trim() ? 'relevance' : 'oldest' } = req.query;
 
     const filter = {
       category: { $nin: ['Toys & Games', 'toys & games', 'Toys and Games'] },
@@ -121,6 +121,8 @@ router.get('/', optionalAuth, async (req, res, next) => {
         scored.sort((a, b) => b.product.rating - a.product.rating);
       } else if (sort === 'newest') {
         scored.sort((a, b) => new Date(b.product.createdAt) - new Date(a.product.createdAt));
+      } else if (sort === 'oldest') {
+        scored.sort((a, b) => new Date(a.product.createdAt) - new Date(b.product.createdAt));
       } else {
         // Semantic Match: Best title matches and highest semantic score first
         scored.sort((a, b) => b.score - a.score);
@@ -142,8 +144,10 @@ router.get('/', optionalAuth, async (req, res, next) => {
         }
       }
     } else {
-      // Standard browsing / category filter
-      let sortOptions = { createdAt: -1 };
+      // Standard browsing / category filter - Oldest products first (chronological date added)
+      let sortOptions = { createdAt: 1 };
+      if (sort === 'oldest') sortOptions = { createdAt: 1 };
+      if (sort === 'newest') sortOptions = { createdAt: -1 };
       if (sort === 'price-asc') sortOptions = { price: 1 };
       if (sort === 'price-desc') sortOptions = { price: -1 };
       if (sort === 'rating') sortOptions = { rating: -1, numReviews: -1 };

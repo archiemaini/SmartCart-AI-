@@ -143,7 +143,11 @@ router.post('/verify', protect, async (req, res, next) => {
       isSignatureValid = expectedSignature === razorpay_signature;
       if (!isSignatureValid) {
         order.paymentStatus = 'Failed';
-        await order.save();
+        if (order.shippingAddress && !order.shippingAddress.email && req.user?.email) {
+      order.shippingAddress.email = req.user.email;
+    }
+
+    await order.save();
         return res.status(400).json({ message: 'Invalid payment signature. Payment verification failed.' });
       }
     } else {
@@ -169,6 +173,10 @@ router.post('/verify', protect, async (req, res, next) => {
       email_address: req.user.email,
       method: paymentMethod,
     };
+
+    if (order.shippingAddress && !order.shippingAddress.email && req.user?.email) {
+      order.shippingAddress.email = req.user.email;
+    }
 
     await order.save();
 

@@ -1,8 +1,5 @@
 /**
  * =====================================================================
- * Contributor: ARNAV
- * Role: Product Backend & Storage Engineer
- * Syllabus Sessions: Session 40 (Multer Multipart Uploads) & Session 48 (Controlled Form State)
  * Feature: Add Product Page with Multer File Picker & Preview
  * =====================================================================
  */

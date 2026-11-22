@@ -91,6 +91,7 @@ router.post('/', protect, async (req, res, next) => {
         state: state?.trim() || 'Punjab',
         pinCode: pinCode.trim(),
         country: 'India',
+        email: req.user?.email || '',
       },
       paymentMethod,
       paymentStatus: isCod ? 'Pending' : 'Pending',

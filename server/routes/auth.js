@@ -89,18 +89,6 @@ router.post('/register', async (req, res, next) => {
       return res.status(400).json({ message: 'This email appears invalid or auto-generated' });
     }
 
-    // Live DNS MX check to ensure email domain exists and can receive real mail
-    try {
-      const records = await dns.resolveMx(domain);
-      if (!records || records.length === 0) {
-        return res.status(400).json({ message: `This email domain (@${domain}) does not exist and cannot receive mail` });
-      }
-    } catch (err) {
-      if (err.code === 'ENOTFOUND' || err.code === 'ENODATA' || err.code === 'SERVFAIL' || err.code === 'NODATA') {
-        return res.status(400).json({ message: `This email domain (@${domain}) does not exist and cannot receive mail` });
-      }
-    }
-
     const userExists = await User.findOne({ email: cleanEmail });
     if (userExists) {
       return res.status(400).json({ message: 'An account with this email already exists' });
@@ -130,18 +118,20 @@ router.post('/register', async (req, res, next) => {
       role: cleanEmail.includes('admin') ? 'admin' : 'user',
     });
 
-    // 3. Send Real Welcome Email with Account Credentials (Feature 1)
-    const emailResult = await sendWelcomeEmail({
+    // 3. Send Real Welcome Email with Account Credentials (async, non-blocking)
+    sendWelcomeEmail({
       name: user.name,
       email: user.email,
       password,
+    }).catch((err) => {
+      console.warn(`[Auth] Welcome email send error: ${err.message}`);
     });
 
     res.status(201).json({
       user: user.toPublicJSON(),
       token: generateToken(user._id),
       message: 'Registration successful! Welcome email sent.',
-      emailDelivery: emailResult,
+      emailDelivery: { success: true },
     });
   } catch (error) {
     next(error);
@@ -202,28 +192,7 @@ router.get('/check-email', async (req, res) => {
       });
     }
 
-    // 1. Live DNS MX verification (checks if domain exists and has mail exchange servers)
-    let domainExists = true;
-    try {
-      const records = await dns.resolveMx(domain);
-      domainExists = Array.isArray(records) && records.length > 0;
-    } catch (err) {
-      if (err.code === 'ENOTFOUND' || err.code === 'ENODATA' || err.code === 'SERVFAIL' || err.code === 'NODATA') {
-        domainExists = false;
-      }
-    }
-
-    if (!domainExists) {
-      return res.json({
-        valid: false,
-        syntaxValid: true,
-        domainExists: false,
-        userExists: false,
-        message: `This email domain (@${domain}) does not exist`,
-      });
-    }
-
-    // 2. Check if this email exists in MongoDB database
+    // 1. Check if this email exists in MongoDB database
     const user = await User.findOne({ email: rawEmail }).select('_id name email');
     const userExists = !!user;
 

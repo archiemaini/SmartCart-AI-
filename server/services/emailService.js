@@ -40,6 +40,8 @@ export async function getTransporter() {
         user: GMAIL_USER.trim(),
         pass: cleanPass,
       },
+      pool: true,
+      maxConnections: 5,
     });
     isEthereal = false;
     console.log(`[Email] ✅ Configured Real Gmail SMTP for ${GMAIL_USER.trim()}`);
@@ -218,7 +220,20 @@ export async function sendOrderConfirmationEmail({ order, user }) {
   try {
     const client = await getTransporter();
     const fromAddress = process.env.EMAIL_FROM || (process.env.GMAIL_USER ? `"SmartCart India" <${process.env.GMAIL_USER.trim()}>` : '"SmartCart Orders" <orders@smartcart.com>');
-    const recipientEmail = user?.email || order.shippingAddress?.email;
+    let recipientEmail = user?.email || order.shippingAddress?.email;
+
+    if (!recipientEmail && order.user) {
+      try {
+        const User = (await import('../models/User.js')).default;
+        const dbUser = await User.findById(order.user).select('email name');
+        if (dbUser) {
+          recipientEmail = dbUser.email;
+          if (!user) user = dbUser;
+        }
+      } catch (err) {
+        // ignore lookup error
+      }
+    }
 
     if (!recipientEmail) {
       console.warn('[Email] Cannot send order confirmation email: recipient email missing');

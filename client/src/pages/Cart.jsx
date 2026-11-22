@@ -29,13 +29,7 @@ import {
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
-import { formatPrice, handleImageError } from '../lib/format';
-
-const INDIAN_STATES = [
-  'Andhra Pradesh', 'Assam', 'Bihar', 'Chandigarh', 'Delhi', 'Goa', 'Gujarat',
-  'Haryana', 'Himachal Pradesh', 'Karnataka', 'Kerala', 'Madhya Pradesh',
-  'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal'
-];
+import { formatPrice, handleImageError, INDIAN_STATES } from '../lib/format';
 
 export default function Cart() {
   const navigate = useNavigate();
@@ -50,9 +44,9 @@ export default function Cart() {
     mobileNumber: '',
     houseNo: '',
     street: '',
-    city: 'Rajpura',
+    city: '',
     state: 'Punjab',
-    pinCode: '140401',
+    pinCode: '',
     isDefault: true,
   });
 
@@ -67,13 +61,26 @@ export default function Cart() {
   const [simulatedMethod, setSimulatedMethod] = useState('upi'); // 'upi' | 'card' | 'netbanking'
   const [upiId, setUpiId] = useState('shopper@okaxis');
 
-  // Set default address upon loading
+  // Set default address upon loading and isolate addresses strictly per user ID
   useEffect(() => {
     if (user?.addresses && user.addresses.length > 0) {
       const def = user.addresses.find((a) => a.isDefault) || user.addresses[0];
-      setSelectedAddressId(def._id);
+      setSelectedAddressId(def?._id || '');
+    } else {
+      setSelectedAddressId('');
     }
-  }, [user]);
+    // Always clear newAddr input form when user changes to prevent cross-account address leaks
+    setNewAddr({
+      fullName: user?.name || '',
+      mobileNumber: '',
+      houseNo: '',
+      street: '',
+      city: '',
+      state: 'Punjab',
+      pinCode: '',
+      isDefault: true,
+    });
+  }, [user?._id]);
 
   // Load Razorpay checkout script dynamically
   useEffect(() => {
@@ -87,20 +94,26 @@ export default function Cart() {
   }, []);
 
   const getActiveShippingAddress = () => {
-    if (user?.addresses && user.addresses.length > 0 && selectedAddressId) {
-      const found = user.addresses.find((a) => a._id === selectedAddressId);
-      if (found) return found;
+    if (user?.addresses && user.addresses.length > 0) {
+      if (selectedAddressId) {
+        const found = user.addresses.find((a) => a._id === selectedAddressId);
+        if (found) return found;
+      }
+      return user.addresses.find((a) => a.isDefault) || user.addresses[0];
     }
-    return {
-      fullName: newAddr.fullName || user?.name || 'Customer',
-      mobileNumber: newAddr.mobileNumber || '9876543210',
-      houseNo: newAddr.houseNo || 'Flat 101',
-      street: newAddr.street || 'University Road',
-      city: newAddr.city || 'Rajpura',
-      state: newAddr.state || 'Punjab',
-      pinCode: newAddr.pinCode || '140401',
-      country: 'India',
-    };
+    if (newAddr.houseNo && newAddr.street && newAddr.city && newAddr.pinCode) {
+      return {
+        fullName: newAddr.fullName || user?.name || 'Customer',
+        mobileNumber: newAddr.mobileNumber || '',
+        houseNo: newAddr.houseNo,
+        street: newAddr.street,
+        city: newAddr.city,
+        state: newAddr.state || 'Punjab',
+        pinCode: newAddr.pinCode,
+        country: 'India',
+      };
+    }
+    return null;
   };
 
   // Handle adding a new address
@@ -144,8 +157,9 @@ export default function Cart() {
 
     // Validate shipping address
     const shippingAddress = getActiveShippingAddress();
-    if (!shippingAddress.fullName || !shippingAddress.mobileNumber || !shippingAddress.houseNo || !shippingAddress.street || !shippingAddress.pinCode) {
-      setError('Please provide a complete shipping address including mobile number and PIN code.');
+    if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.mobileNumber || !shippingAddress.houseNo || !shippingAddress.street || !shippingAddress.city || !shippingAddress.pinCode) {
+      setError('Please add a complete delivery address for this account before checking out.');
+      setShowAddAddressModal(true);
       return;
     }
 
@@ -662,7 +676,7 @@ export default function Cart() {
                     required
                     value={newAddr.city}
                     onChange={(e) => setNewAddr({ ...newAddr, city: e.target.value })}
-                    placeholder="Rajpura"
+                    placeholder="City"
                     className="w-full text-xs px-3 py-2 rounded-xl border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>
@@ -686,7 +700,7 @@ export default function Cart() {
                     pattern="[0-9]{6}"
                     value={newAddr.pinCode}
                     onChange={(e) => setNewAddr({ ...newAddr, pinCode: e.target.value })}
-                    placeholder="140401"
+                    placeholder="PIN Code"
                     className="w-full text-xs px-3 py-2 rounded-xl border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 </div>

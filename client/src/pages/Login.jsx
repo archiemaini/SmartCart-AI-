@@ -1,8 +1,5 @@
 /**
  * =====================================================================
- * Contributor: KUNAL
- * Role: Lead Backend & Database Architect
- * Syllabus Sessions: Session 48 (Controlled Form Components & Event Handling)
  * Feature: User Sign-In Form & Live Email Existence Verification
  * =====================================================================
  */

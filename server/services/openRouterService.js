@@ -14,7 +14,26 @@ const OPENROUTER_ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
 /**
  * Curated high-resolution Unsplash images mapped to product domains
  */
+const TSHIRT_IMAGES = [
+  'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=800&q=80',
+  'https://images.unsplash.com/photo-1562157873-818bc0726f68?auto=format&fit=crop&w=800&q=80',
+];
+
 const CATEGORY_IMAGE_MAP = [
+  // Prioritize specific apparel & t-shirts first to prevent shoes/footwear from intercepting
+  { match: /\b(t-?shirt|tee|polo|henley)\b/i, urls: TSHIRT_IMAGES },
+  { match: /\b(shirt|button-down|oxford|formal shirt|casual shirt)\b/i, url: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80' },
+  { match: /\b(hoodie|sweatshirt|jacket|sweater|coat)\b/i, url: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80' },
+  { match: /\b(jeans|denim|trousers|pants)\b/i, url: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80' },
+  { match: /\b(dress|kurti|saree|ethnic)\b/i, url: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=800&q=80' },
+  
+  // Tech & Electronics
   { match: /keyboard|keycap/i, url: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80' },
   { match: /mouse|mousepad/i, url: 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=800&q=80' },
   { match: /headphone|earbud|audio|headset|earphone/i, url: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80' },
@@ -23,7 +42,11 @@ const CATEGORY_IMAGE_MAP = [
   { match: /watch|smartwatch|band/i, url: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80' },
   { match: /camera|dslr|lens/i, url: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80' },
   { match: /drone|quadcopter/i, url: 'https://images.unsplash.com/photo-1507582020474-9a35b7d455d9?auto=format&fit=crop&w=800&q=80' },
-  { match: /shoe|sneaker|footwear|boot/i, url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80' },
+  
+  // Footwear strictly matched only when explicitly footwear
+  { match: /\b(shoe|sneaker|footwear|boot|sandal|loafer|brogue|clogs|slippers)\b/i, url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80' },
+  
+  // General Goods
   { match: /bag|backpack|luggage|suitcase/i, url: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80' },
   { match: /coffee|espresso|cafe/i, url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80' },
   { match: /tea|green tea|chai/i, url: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=800&q=80' },
@@ -32,9 +55,10 @@ const CATEGORY_IMAGE_MAP = [
   { match: /skincare|serum|cream|cosmetics|beauty/i, url: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80' },
   { match: /chair|table|desk|furniture|decor/i, url: 'https://images.unsplash.com/photo-1580481077195-c9f225bf0267?auto=format&fit=crop&w=800&q=80' },
   { match: /kitchen|blender|cookware|pan|knife/i, url: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=800&q=80' },
-  { match: /t-shirt|shirt|hoodie|jacket|clothing|apparel/i, url: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80' },
   { match: /book|novel|notebook/i, url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80' },
 ];
+
+let tshirtIndex = 0;
 
 /**
  * Map product details to a verified high-resolution photo URL
@@ -43,6 +67,11 @@ export function getCuratedProductImage(title = '', category = '', tags = []) {
   const combined = `${title} ${category} ${tags.join(' ')}`.toLowerCase();
   for (const item of CATEGORY_IMAGE_MAP) {
     if (item.match.test(combined)) {
+      if (item.urls) {
+        const url = item.urls[tshirtIndex % item.urls.length];
+        tshirtIndex++;
+        return url;
+      }
       return item.url;
     }
   }
@@ -196,10 +225,18 @@ Each object in the array MUST have:
       const description = String(item.description || title).trim();
       const tags = Array.isArray(item.tags) ? item.tags : [cleanQuery.toLowerCase()];
       
-      // Fetch authentic online product image directly from real retail / manufacturer CDNs
-      const realImages = await fetchRealOnlineProductImages(title, brand, category);
-      const image = realImages.length > 0 ? realImages[0] : getCuratedProductImage(title, category, tags);
-      const images = realImages.length > 0 ? realImages.slice(0, 4) : [image];
+      // Ensure clothing / apparel / shirts always get proper apparel images (never shoes or random ads)
+      const isClothingOrShirt = /\b(shirt|t-?shirt|tee|polo|apparel|clothing|hoodie|jacket|dress|top|henley)\b/i.test(`${title} ${category} ${cleanQuery}`);
+      let image = '';
+      let images = [];
+      if (isClothingOrShirt) {
+        image = getCuratedProductImage(title, category, tags);
+        images = [image];
+      } else {
+        const realImages = await fetchRealOnlineProductImages(title, brand, category);
+        image = realImages.length > 0 ? realImages[0] : getCuratedProductImage(title, category, tags);
+        images = realImages.length > 0 ? realImages.slice(0, 4) : [image];
+      }
 
       // Compute vector embedding for RAG
       const embedding = await generateEmbedding(`${title} ${brand} ${category} ${description} ${tags.join(' ')}`);

@@ -1,8 +1,5 @@
 /**
  * =====================================================================
- * Contributor: LAVANYA
- * Role: Lead Frontend UI/UX & Assistant Engineer
- * Syllabus Sessions: Sessions 27-28 (Dynamic Fetch) & Sessions 43-45 (Component Props & Reusability)
  * Feature: Product Detail View, Image Zoom, Pricing & Related Suggestions
  * =====================================================================
  */

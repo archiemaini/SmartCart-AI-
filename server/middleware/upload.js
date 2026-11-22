@@ -1,8 +1,5 @@
 /**
  * =====================================================================
- * Contributor: ARNAV
- * Role: Product Backend & Storage Engineer
- * Syllabus Sessions: Session 33 (fs & path Modules) & Session 40 (Multer File Uploads)
  * Feature: Multer Disk Storage & Image Upload Validation
  * =====================================================================
  */

@@ -7929,5 +7929,121 @@
         "date": "2026-11-21T10:05:42.262Z"
       }
     ]
+  },
+  {
+    "title": "Men Pure Cotton Crew Neck Casual T-Shirt (Classic White)",
+    "brand": "Allen Solly",
+    "category": "Fashion & Apparel",
+    "price": 499,
+    "mrp": 999,
+    "description": "Ultra-comfortable breathable 100% bio-washed combed cotton t-shirt with ribbed crew neck. Ideal for daily casual wear, college, and lounging.",
+    "image": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80"
+    ],
+    "rating": 4.6,
+    "numReviews": 245,
+    "countInStock": 50,
+    "tags": [
+      "t-shirt",
+      "t shirt",
+      "cotton t-shirt",
+      "white tee",
+      "casual wear",
+      "fashion"
+    ],
+    "specifications": {
+      "Fabric": "100% Combed Cotton",
+      "Fit": "Regular Fit",
+      "Neck": "Crew Neck",
+      "Sleeve": "Short Sleeve"
+    }
+  },
+  {
+    "title": "Men Slim Fit Cotton Polo Collar T-Shirt (Navy Blue)",
+    "brand": "Peter England",
+    "category": "Fashion & Apparel",
+    "price": 699,
+    "mrp": 1299,
+    "description": "Classic pique polo t-shirt with button placket, ribbed collar and cuffs. Tailored slim fit for smart-casual and office wear.",
+    "image": "https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?auto=format&fit=crop&w=800&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?auto=format&fit=crop&w=800&q=80"
+    ],
+    "rating": 4.7,
+    "numReviews": 312,
+    "countInStock": 45,
+    "tags": [
+      "polo t-shirt",
+      "t-shirt",
+      "t shirt",
+      "polo",
+      "navy t-shirt",
+      "fashion"
+    ],
+    "specifications": {
+      "Fabric": "95% Cotton, 5% Spandex",
+      "Fit": "Slim Fit",
+      "Neck": "Polo Collar",
+      "Pattern": "Solid"
+    }
+  },
+  {
+    "title": "Oversized Streetwear Graphic Print T-Shirt (Midnight Black)",
+    "brand": "Bewakoof",
+    "category": "Fashion & Apparel",
+    "price": 599,
+    "mrp": 1199,
+    "description": "Drop shoulder streetwear oversized graphic t-shirt crafted from heavy 220 GSM pure cotton with durable screen printing.",
+    "image": "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80"
+    ],
+    "rating": 4.5,
+    "numReviews": 189,
+    "countInStock": 35,
+    "tags": [
+      "oversized t-shirt",
+      "t-shirt",
+      "t shirt",
+      "graphic tee",
+      "black t-shirt",
+      "streetwear"
+    ],
+    "specifications": {
+      "Fabric": "220 GSM Cotton",
+      "Fit": "Oversized Drop Shoulder",
+      "Neck": "Round Neck",
+      "Style": "Streetwear"
+    }
+  },
+  {
+    "title": "Women Pure Cotton Regular Fit Casual T-Shirt (Pastel Pink)",
+    "brand": "Marks & Spencer",
+    "category": "Fashion & Apparel",
+    "price": 549,
+    "mrp": 1099,
+    "description": "Soft breathable lightweight cotton t-shirt with a relaxed silhouette and comfortable round neckline.",
+    "image": "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=800&q=80",
+    "images": [
+      "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=800&q=80"
+    ],
+    "rating": 4.8,
+    "numReviews": 215,
+    "countInStock": 40,
+    "tags": [
+      "women t-shirt",
+      "t-shirt",
+      "t shirt",
+      "pink t-shirt",
+      "women fashion",
+      "cotton tee"
+    ],
+    "specifications": {
+      "Fabric": "100% Organic Cotton",
+      "Fit": "Regular Fit",
+      "Neck": "Crew Neck",
+      "Occasion": "Daily Wear"
+    }
   }
 ]

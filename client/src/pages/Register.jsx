@@ -11,6 +11,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { AlertCircle, Loader2, Lock, Mail, User, MapPin, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
+import { INDIAN_STATES } from '../lib/format';
 import { AuthShell, Field } from './Login';
 
 export default function Register() {
@@ -23,9 +24,9 @@ export default function Register() {
   const [address, setAddress] = useState({
     houseNo: '',
     street: '',
-    city: 'Rajpura',
+    city: '',
     state: 'Punjab',
-    pinCode: '140401',
+    pinCode: '',
     mobileNumber: '',
   });
 
@@ -116,7 +117,7 @@ export default function Register() {
 
       setTimeout(() => {
         navigate(redirectTo, { replace: true });
-      }, 1500);
+      }, 600);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -201,6 +202,17 @@ export default function Register() {
                   onChange={(e) => setAddress({ ...address, city: e.target.value })}
                   className="w-full px-3 py-1.5 rounded-lg border border-neutral-200 bg-white"
                 />
+                <select
+                  value={address.state}
+                  onChange={(e) => setAddress({ ...address, state: e.target.value })}
+                  className="w-full px-2 py-1.5 rounded-lg border border-neutral-200 bg-white text-xs text-neutral-800"
+                >
+                  {INDIAN_STATES.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
                 <input
                   type="text"
                   placeholder="PIN Code (6 digits)"
@@ -208,14 +220,14 @@ export default function Register() {
                   onChange={(e) => setAddress({ ...address, pinCode: e.target.value })}
                   className="w-full px-3 py-1.5 rounded-lg border border-neutral-200 bg-white"
                 />
+                <input
+                  type="tel"
+                  placeholder="10-digit Mobile Number"
+                  value={address.mobileNumber}
+                  onChange={(e) => setAddress({ ...address, mobileNumber: e.target.value })}
+                  className="w-full px-3 py-1.5 rounded-lg border border-neutral-200 bg-white"
+                />
               </div>
-              <input
-                type="tel"
-                placeholder="10-digit Mobile Number"
-                value={address.mobileNumber}
-                onChange={(e) => setAddress({ ...address, mobileNumber: e.target.value })}
-                className="w-full px-3 py-1.5 rounded-lg border border-neutral-200 bg-white"
-              />
             </div>
           )}
         </div>
@@ -233,7 +245,7 @@ export default function Register() {
           className="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs shadow-sm transition disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {busy && <Loader2 size={16} className="animate-spin" />}
-          {busy ? 'Creating account…' : 'Register & Receive Welcome Email'}
+          {busy ? 'Creating account…' : 'Register'}
         </button>
       </form>
 

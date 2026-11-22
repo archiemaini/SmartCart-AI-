@@ -385,10 +385,9 @@ ${productContext}
 
 Instructions:
 1. Address the user's specific request warmly and directly.
-2. Highlight why these specific models are recommended (e.g. processor, camera quality, gaming audio, budget savings in ₹).
+2. Highlight why these specific models are great picks (e.g. processor, camera quality, gaming audio, budget savings in ₹).
 3. Mention key specifications clearly using bullet points.
-4. Inform the user that they can click "Add to Cart" or "Buy Now" on the product cards below to order immediately.
-5. Keep your tone professional, concise, and helpful. All prices must be quoted in Indian Rupees (₹).
+4. Keep your tone professional, concise, and helpful. All prices must be quoted in Indian Rupees (₹).
       `;
 
       const result = await model.generateContent(prompt);
@@ -405,15 +404,15 @@ Instructions:
       const qLower = query.toLowerCase();
 
       if (qLower.includes('laptop') && maxPrice) {
-        reply = `I searched our verified catalog and retrieved top-rated **laptops within your budget under ₹${maxPrice.toLocaleString('en-IN')}**:\n\n• **${p1.title}**: Outstanding value at **₹${p1.price.toLocaleString('en-IN')}** with ⭐ ${p1.rating}/5 rating.\n• All models listed below are in stock and ready to ship across India with fast delivery.\n\nClick **Add to Cart** or **Buy Now** on any card below to proceed:`;
+        reply = `I searched our verified catalog and found top-rated **laptops within your budget under ₹${maxPrice.toLocaleString('en-IN')}**:\n\n• **${p1.title}**: Outstanding value at **₹${p1.price.toLocaleString('en-IN')}** with ⭐ ${p1.rating}/5 rating.\n• Highly recommended with fast performance and reliable battery life.`;
       } else if (qLower.includes('camera') || qLower.includes('phone') || qLower.includes('smartphone')) {
-        reply = `Here are our best-selling smartphones equipped with **high-resolution pro-grade cameras** and optical stabilization:\n\n• **${p1.title}** (₹${p1.price.toLocaleString('en-IN')}): Exceptional sensor with stellar low-light night mode and portrait photography.\n\nTake a look at the options below to add them to your cart or check out directly:`;
+        reply = `Here are our best-selling smartphones equipped with **high-resolution pro-grade cameras**:\n\n• **${p1.title}** (₹${p1.price.toLocaleString('en-IN')}): Exceptional sensor with stellar low-light night mode and portrait photography.`;
       } else if (qLower.includes('gaming') || qLower.includes('headphone')) {
-        reply = `For competitive gaming and immersive spatial audio, here are our **top-recommended gaming headsets**:\n\n• **${p1.title}** (₹${p1.price.toLocaleString('en-IN')}): Features positional surround sound, low latency, and crystal-clear noise-canceling microphone.\n\nCheck out the product cards below:`;
+        reply = `For competitive gaming and immersive spatial audio, here are our **top gaming headsets**:\n\n• **${p1.title}** (₹${p1.price.toLocaleString('en-IN')}): Features positional surround sound, low latency, and crystal-clear noise-canceling microphone.`;
       } else if (maxPrice) {
-        reply = `Here are the top-rated items from our collection under **₹${maxPrice.toLocaleString('en-IN')}**:\n\n• **${p1.title}** - ₹${p1.price.toLocaleString('en-IN')} (⭐ ${p1.rating}/5)\n\nYou can add any product to your cart or purchase directly below!`;
+        reply = `Here are the top-rated items from our collection under **₹${maxPrice.toLocaleString('en-IN')}**:\n\n• **${p1.title}** - ₹${p1.price.toLocaleString('en-IN')} (⭐ ${p1.rating}/5)`;
       } else {
-        reply = `Based on your request, I retrieved these top matches from our store collection:\n\n• **${p1.title}** (₹${p1.price.toLocaleString('en-IN')}) - highly rated by verified buyers.\n\nClick **Add to Cart** or **Buy Now** to proceed immediately:`;
+        reply = `Based on your request, here are top matches from our store collection:\n\n• **${p1.title}** (₹${p1.price.toLocaleString('en-IN')}) - highly rated by verified buyers.`;
       }
     } else {
       reply = `I couldn't find exact matches for "${query}". Try searching for popular categories like:\n• *"Show me laptops under ₹50,000"*\n• *"Suggest a good smartphone with a decent camera"*\n• *"Find the best headphones for gaming"*\n• *"Compare these two products"*`;

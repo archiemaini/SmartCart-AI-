@@ -1,8 +1,5 @@
 /**
  * =====================================================================
- * Contributor: KUNAL
- * Role: Lead Backend & Database Architect
- * Syllabus Sessions: Session 41 (MongoDB Connection & Mongoose Configuration)
  * Feature: MongoDB Database Connection Management
  * =====================================================================
  */

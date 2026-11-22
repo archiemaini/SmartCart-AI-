@@ -1,8 +1,5 @@
 /**
  * =====================================================================
- * Contributor: ARCHIE
- * Role: Order Management & State Specialist
- * Syllabus Sessions: Session 39 (Centralized Error Handling Middleware)
  * Feature: 404 Handler & Global Error Handler (Mongoose CastError / ValidationError)
  * =====================================================================
  */

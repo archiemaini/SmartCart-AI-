@@ -15,10 +15,6 @@ import {
   Send,
   Sparkles,
   Loader2,
-  ShoppingCart,
-  Check,
-  ExternalLink,
-  Zap,
   RotateCcw,
 } from 'lucide-react';
 import { api } from '../lib/api';
@@ -112,13 +108,12 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      text: "👋 Hi! I'm your SmartCart shopping assistant.\n\nLooking for product recommendations, comparing items, or finding the best deals in ₹ INR? Let me know what you're shopping for today!",
+      text: "👋 Hi! I'm your SmartCart shopping assistant.\n\nAsk me about product specifications, pricing, comparisons, or anything else about items in our store!",
       products: [],
     },
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const { addItem, isInCart } = useCart();
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -137,20 +132,14 @@ export default function ChatWidget() {
     setLoading(true);
 
     try {
-      // Pass previous products in history for conversational follow-ups and comparisons
-      const previousProducts = messages
-        .flatMap((m) => m.products || [])
-        .slice(-4);
-
-      const data = await api.chat(textToSend, previousProducts);
+      const data = await api.chat(textToSend);
 
       setMessages((prev) => [
         ...prev,
         {
           role: 'assistant',
-          text: data.reply || 'Here are the matching products from our catalog:',
-          products: data.products || [],
-          isComparison: data.isComparison || false,
+          text: data.reply || 'Here is the information from our catalog:',
+          products: [],
         },
       ]);
     } catch (err) {
@@ -158,20 +147,13 @@ export default function ChatWidget() {
         ...prev,
         {
           role: 'assistant',
-          text: 'I ran into a problem finding recommendations. Please try asking again!',
+          text: 'I ran into a problem. Please try asking again!',
           products: [],
         },
       ]);
     } finally {
       setLoading(false);
     }
-  };
-
-  // Direct checkout action from chat
-  const handleBuyNow = (product) => {
-    addItem(product, 1);
-    setIsOpen(false);
-    navigate('/cart');
   };
 
   const clearChat = () => {
@@ -257,89 +239,13 @@ export default function ChatWidget() {
                 >
                   <FormattedMessage text={msg.text} isUser={msg.role === 'user'} />
                 </div>
-
-                {/* Render Actual Product Cards inside the chat message */}
-                {msg.products && msg.products.length > 0 && (
-                  <div className="mt-2.5 w-full space-y-2.5">
-                    {msg.products.map((p) => {
-                      const inCart = isInCart(p._id);
-                      return (
-                        <div
-                          key={p._id}
-                          className="flex flex-col p-3 rounded-2xl border border-neutral-200 bg-white shadow-xs hover:border-emerald-300 transition"
-                        >
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={p.image}
-                              alt={p.title}
-                              className="h-14 w-14 rounded-xl object-cover bg-neutral-50 shrink-0 border border-neutral-100"
-                            />
-                            <div className="min-w-0 flex-1">
-                              <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">
-                                {p.category}
-                              </span>
-                              <p className="font-semibold text-neutral-900 truncate text-xs">{p.title}</p>
-                              <div className="flex items-center gap-2 mt-0.5">
-                                <span className="text-emerald-800 font-bold text-sm">
-                                  {formatPrice(p.price)}
-                                </span>
-                                {p.mrp > p.price && (
-                                  <span className="text-[10px] text-neutral-400 line-through">
-                                    {formatPrice(p.mrp)}
-                                  </span>
-                                )}
-                                <span className="text-[10px] font-semibold text-amber-600 ml-auto">
-                                  ⭐ {p.rating}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Action Buttons: Add to Cart & Buy Now Directly */}
-                          <div className="mt-2.5 pt-2 border-t border-neutral-100 flex items-center justify-between gap-2">
-                            <Link
-                              to={`/product/${p._id}`}
-                              onClick={() => setIsOpen(false)}
-                              className="text-[11px] font-semibold text-neutral-600 hover:text-emerald-700 flex items-center gap-1"
-                            >
-                              Details <ExternalLink size={12} />
-                            </Link>
-
-                            <div className="flex items-center gap-2">
-                              <button
-                                type="button"
-                                onClick={() => addItem(p)}
-                                className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition ${
-                                  inCart
-                                    ? 'bg-emerald-100 text-emerald-800'
-                                    : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
-                                }`}
-                              >
-                                {inCart ? <Check size={13} /> : <ShoppingCart size={13} />}
-                                <span>{inCart ? 'In Cart' : 'Add'}</span>
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => handleBuyNow(p)}
-                                className="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-700 hover:bg-emerald-800 text-white flex items-center gap-1 shadow-xs transition"
-                              >
-                                <Zap size={12} /> Buy Now
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
             ))}
 
             {loading && (
               <div className="flex items-center gap-2 text-neutral-600 bg-white p-3 rounded-2xl border border-neutral-200 w-fit text-xs shadow-xs">
                 <Loader2 size={14} className="animate-spin text-emerald-600" />
-                <span>Finding the best recommendations for you…</span>
+                <span>SmartCart AI is thinking…</span>
               </div>
             )}
             <div ref={messagesEndRef} />

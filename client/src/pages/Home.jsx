@@ -1,8 +1,5 @@
 /**
  * =====================================================================
- * Contributor: LAVANYA
- * Role: Lead Frontend UI/UX & Assistant Engineer
- * Syllabus Sessions: Sessions 43-45 (Component Reusability & Props) & Sessions 46-48 (State Hooks & Event Handling)
  * Feature: Storefront Landing Page, Category Sidebar Filters & Hero Layout
  * =====================================================================
  */
@@ -13,8 +10,9 @@ import { api } from '../lib/api';
 import ProductCard from '../components/ProductCard';
 
 const SORT_OPTIONS = [
+  { value: 'oldest', label: 'Date Added (Oldest First)' },
+  { value: 'newest', label: 'Date Added (Newest First)' },
   { value: 'relevance', label: 'Semantic Match' },
-  { value: 'newest', label: 'Newest' },
   { value: 'price-asc', label: 'Price: Low to High' },
   { value: 'price-desc', label: 'Price: High to Low' },
   { value: 'rating', label: 'Top Rated' },
@@ -38,13 +36,13 @@ export default function Home() {
   const [filterMeta, setFilterMeta] = useState({ categories: [] });
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedMaxPrice, setSelectedMaxPrice] = useState(null);
-  const [sortBy, setSortBy] = useState(search ? 'relevance' : 'newest');
+  const [sortBy, setSortBy] = useState(search ? 'relevance' : 'oldest');
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (search && sortBy === 'newest') {
+    if (search && sortBy === 'oldest') {
       setSortBy('relevance');
     }
   }, [search]);
