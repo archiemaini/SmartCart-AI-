@@ -144,6 +144,7 @@ router.post('/register', async (req, res, next) => {
  * @access  Public
  */
 router.get('/check-email', async (req, res) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   try {
     const rawEmail = String(req.query.email || '').trim().toLowerCase();
     const context = req.query.context || 'login'; // 'login' or 'register'

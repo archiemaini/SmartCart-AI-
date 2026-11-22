@@ -52,7 +52,7 @@ export const api = {
   register: (payload) => request('/auth/register', { method: 'POST', body: payload }),
   login: (payload) => request('/auth/login', { method: 'POST', body: payload }),
   checkEmail: (email, context = 'login') =>
-    request(`/auth/check-email?email=${encodeURIComponent(email)}&context=${context}`),
+    request(`/auth/check-email?email=${encodeURIComponent(email)}&context=${context}&_t=${Date.now()}`),
   me: () => request('/auth/me', { auth: true }),
   updateProfile: (payload) => request('/auth/profile', { method: 'PUT', body: payload, auth: true }),
   getRecentEmails: () => request('/auth/recent-emails'),
