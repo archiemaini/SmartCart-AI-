@@ -28,6 +28,7 @@ import {
   X,
   UploadCloud,
   Check,
+  ArrowUpDown,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
@@ -54,6 +55,7 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [stockSort, setStockSort] = useState('none'); // 'none' | 'asc' (lowest first) | 'desc' (highest first)
   const [syncing, setSyncing] = useState(false);
 
   // Edit Product Modal State
@@ -287,14 +289,20 @@ export default function AdminDashboard() {
     }
   };
 
-  const filteredProducts = products.filter((p) => {
-    const s = searchTerm.toLowerCase().trim();
-    if (!s) return true;
-    const title = String(p.title || '').toLowerCase();
-    const cat = String(p.category || '').toLowerCase();
-    const brand = String(p.brand || '').toLowerCase();
-    return title.includes(s) || cat.includes(s) || brand.includes(s);
-  });
+  const filteredProducts = products
+    .filter((p) => {
+      const s = searchTerm.toLowerCase().trim();
+      if (!s) return true;
+      const title = String(p.title || '').toLowerCase();
+      const cat = String(p.category || '').toLowerCase();
+      const brand = String(p.brand || '').toLowerCase();
+      return title.includes(s) || cat.includes(s) || brand.includes(s);
+    })
+    .sort((a, b) => {
+      if (stockSort === 'asc') return (a.countInStock || 0) - (b.countInStock || 0);
+      if (stockSort === 'desc') return (b.countInStock || 0) - (a.countInStock || 0);
+      return 0;
+    });
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-8">
@@ -417,7 +425,7 @@ export default function AdminDashboard() {
       {/* TAB 1: PRODUCT INVENTORY TABLE */}
       {activeTab === 'inventory' && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="relative flex-1 max-w-sm">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
               <input
@@ -428,9 +436,25 @@ export default function AdminDashboard() {
                 className="w-full text-xs pl-8 pr-3 py-2 rounded-xl border border-neutral-200 focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
-            <span className="text-xs text-neutral-500">
-              Showing {filteredProducts.length} of {products.length} products
-            </span>
+
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 bg-neutral-50 px-3 py-1.5 rounded-xl border border-neutral-200">
+                <span className="text-[11px] font-semibold text-neutral-600">Sort by Stock:</span>
+                <select
+                  value={stockSort}
+                  onChange={(e) => setStockSort(e.target.value)}
+                  className="text-xs bg-white border border-neutral-200 rounded-lg px-2 py-1 text-neutral-800 font-medium focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                >
+                  <option value="none">Default Ordering</option>
+                  <option value="asc">Stock: Low to High (Out & Low First)</option>
+                  <option value="desc">Stock: High to Low</option>
+                </select>
+              </div>
+
+              <span className="text-xs text-neutral-500 shrink-0">
+                Showing {filteredProducts.length} of {products.length} products
+              </span>
+            </div>
           </div>
 
           <div className="overflow-x-auto rounded-2xl border border-neutral-200 bg-white shadow-xs">
@@ -440,7 +464,30 @@ export default function AdminDashboard() {
                   <th className="p-3.5">Product</th>
                   <th className="p-3.5">Category</th>
                   <th className="p-3.5">Price (INR)</th>
-                  <th className="p-3.5">Stock Management</th>
+                  <th className="p-3.5">
+                    <button
+                      type="button"
+                      onClick={() => setStockSort((prev) => (prev === 'none' ? 'asc' : prev === 'asc' ? 'desc' : 'none'))}
+                      className="inline-flex items-center gap-1.5 font-bold uppercase hover:text-emerald-700 transition"
+                      title="Click to sort by stock (Low to High / High to Low)"
+                    >
+                      <span>Stock Management</span>
+                      <ArrowUpDown
+                        size={12}
+                        className={stockSort !== 'none' ? 'text-emerald-700 font-bold' : 'text-neutral-400'}
+                      />
+                      {stockSort === 'asc' && (
+                        <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1 py-0.2 rounded font-bold normal-case">
+                          Low → High
+                        </span>
+                      )}
+                      {stockSort === 'desc' && (
+                        <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1 py-0.2 rounded font-bold normal-case">
+                          High → Low
+                        </span>
+                      )}
+                    </button>
+                  </th>
                   <th className="p-3.5">Status</th>
                   <th className="p-3.5 text-right">Actions</th>
                 </tr>
