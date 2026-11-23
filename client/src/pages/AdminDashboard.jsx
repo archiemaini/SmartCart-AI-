@@ -9,7 +9,7 @@
  * - Real Product API One-Click Synchronization
  * =====================================================================
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   ShieldAlert,
@@ -161,16 +161,22 @@ export default function AdminDashboard() {
     );
   }
 
-  // Quick Stock Adjustment
+  // Quick Stock Adjustment with instantaneous UI & Low Stock counter update
   const handleStockChange = async (id, newStock) => {
     if (newStock < 0) return;
+    const stockNum = Number(newStock);
+
+    // 1. Instantly update products state so UI & Low Stock alert count refresh immediately
+    setProducts((prev) =>
+      prev.map((p) => (p._id === id ? { ...p, countInStock: stockNum } : p))
+    );
+
+    // 2. Persist to MongoDB in background
     try {
-      await api.updateStock(id, newStock);
-      setProducts((prev) =>
-        prev.map((p) => (p._id === id ? { ...p, countInStock: newStock } : p))
-      );
+      await api.updateStock(id, stockNum);
     } catch (err) {
       alert(`Stock update failed: ${err.message}`);
+      loadAdminData(); // revert on network error
     }
   };
 
@@ -304,6 +310,11 @@ export default function AdminDashboard() {
       return 0;
     });
 
+  // Dynamic real-time count of low-stock products (<= 5 units remaining)
+  const lowStockCount = useMemo(() => {
+    return products.filter((p) => Number(p.countInStock) <= 5).length;
+  }, [products]);
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-8">
       {/* Header & Role Badge */}
@@ -321,17 +332,6 @@ export default function AdminDashboard() {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleSyncCatalog}
-            disabled={syncing}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-700 transition"
-            title="Ingest and sync full Amazon Berkeley Objects dataset into MongoDB"
-          >
-            <RefreshCw size={13} className={syncing ? 'animate-spin text-emerald-700' : ''} />
-            <span>{syncing ? 'Syncing...' : 'Sync Amazon Berkeley Dataset'}</span>
-          </button>
-
           <button
             type="button"
             onClick={() => setActiveTab('addProduct')}
@@ -370,8 +370,8 @@ export default function AdminDashboard() {
               <span className="text-xs font-medium">Catalog Inventory</span>
               <Package size={18} className="text-emerald-700" />
             </div>
-            <p className="text-2xl font-bold text-neutral-900">{stats.totalProducts}</p>
-            <p className="text-[11px] text-neutral-500 mt-1">Active products in MongoDB</p>
+            <p className="text-2xl font-bold text-neutral-900">{products.length}</p>
+            <p className="text-[11px] text-neutral-500 mt-1">Active products in catalog</p>
           </div>
 
           <div className="p-5 rounded-2xl border border-neutral-200 bg-white shadow-xs">
@@ -379,7 +379,7 @@ export default function AdminDashboard() {
               <span className="text-xs font-medium">Low Stock Alerts</span>
               <AlertTriangle size={18} className="text-amber-600" />
             </div>
-            <p className="text-2xl font-bold text-neutral-900">{stats.lowStockCount}</p>
+            <p className="text-2xl font-bold text-neutral-900">{lowStockCount}</p>
             <p className="text-[11px] text-amber-700 font-medium mt-1">Items with ≤ 5 units left</p>
           </div>
         </div>

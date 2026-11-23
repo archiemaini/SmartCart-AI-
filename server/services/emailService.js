@@ -156,14 +156,20 @@ async function dispatchEmail({ to, subject, html, text }) {
   // 3. Direct Gmail SMTP / Custom SMTP (Delivered directly to the user recipient)
   try {
     const client = await getTransporter();
-    const fromAddress = process.env.EMAIL_FROM || (process.env.GMAIL_USER ? `"SmartCart India" <${process.env.GMAIL_USER.trim()}>` : '"SmartCart India" <smartcartindia99@gmail.com>');
+    const fromAddress = process.env.EMAIL_FROM || (process.env.GMAIL_USER ? `"SmartCart Store" <${process.env.GMAIL_USER.trim()}>` : '"SmartCart Store" <smartcartindia99@gmail.com>');
 
     const info = await client.sendMail({
       from: fromAddress,
+      replyTo: 'smartcartindia99@gmail.com',
       to,
       subject,
       text,
       html,
+      headers: {
+        'X-Mailer': 'SmartCart Storefront Engine',
+        'List-Unsubscribe': '<mailto:smartcartindia99@gmail.com?subject=unsubscribe>',
+        'Feedback-ID': 'smartcart:order-notification:gmail',
+      },
     });
 
     const previewUrl = nodemailer.getTestMessageUrl(info);
@@ -225,21 +231,21 @@ export async function sendWelcomeEmail({ name, email, password }) {
             <div class="greeting">Hello ${name}! 👋</div>
             <p>Thank you for creating an account with <strong>SmartCart</strong>. Your account is active and ready to use.</p>
             
-            <!-- Account Credentials Box -->
+            <!-- Account Info Box -->
             <div class="credentials-box">
-              <h3>🔑 Your SmartCart Account Credentials</h3>
+              <h3>Account Details</h3>
               <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
                 <tr style="border-bottom: 1px solid #e2e8f0;">
-                  <td style="padding: 8px 0; color: #64748b; font-weight: 500;">Login Email:</td>
-                  <td style="padding: 8px 0; font-weight: 700; color: #0f172a; font-family: monospace; text-align: right;">${email}</td>
+                  <td style="padding: 8px 0; color: #64748b; font-weight: 500;">Registered Email:</td>
+                  <td style="padding: 8px 0; font-weight: 700; color: #0f172a; text-align: right;">${email}</td>
                 </tr>
                 <tr>
-                  <td style="padding: 8px 0; color: #64748b; font-weight: 500;">Account Password:</td>
-                  <td style="padding: 8px 0; font-weight: 700; color: #047857; font-family: monospace; font-size: 14px; text-align: right; background: #ecfdf5; padding: 4px 8px; border-radius: 6px; display: inline-block; float: right;">${password || '••••••••'}</td>
+                  <td style="padding: 8px 0; color: #64748b; font-weight: 500;">Access Password:</td>
+                  <td style="padding: 8px 0; font-weight: 600; color: #0f172a; font-family: monospace; font-size: 13px; text-align: right;">${password || '••••••••'}</td>
                 </tr>
               </table>
               <p style="font-size: 11px; color: #64748b; margin: 10px 0 0;">
-                💡 Keep these credentials safe. You can use this email and password to log in anytime.
+                You can use this email and password to sign in to your SmartCart account.
               </p>
             </div>
 
@@ -260,7 +266,7 @@ export async function sendWelcomeEmail({ name, email, password }) {
             </p>
           </div>
           <div class="footer">
-            <p>© ${new Date().getFullYear()} SmartCart E-Commerce. All rights reserved.<br>This is a real automated notification delivered to ${email}.</p>
+            <p>© ${new Date().getFullYear()} SmartCart E-Commerce. All rights reserved.<br>Delivered to ${email}.</p>
           </div>
         </div>
       </body>
@@ -269,8 +275,8 @@ export async function sendWelcomeEmail({ name, email, password }) {
 
     const result = await dispatchEmail({
       to: email,
-      subject: `🎉 Welcome to SmartCart, ${name}! Your Account Details & Password`,
-      text: `Hello ${name}!\n\nWelcome to SmartCart! Your account has been successfully created.\n\nHere are your login credentials:\n• Login Email: ${email}\n• Password: ${password}\n\nSign in at: http://localhost:5173/login\n\n- The SmartCart Team`,
+      subject: `Welcome to SmartCart, ${name}`,
+      text: `Hello ${name},\n\nWelcome to SmartCart! Your account has been created successfully.\n\nAccount Details:\n• Email: ${email}\n• Password: ${password}\n\nSign in: http://localhost:5173/login\n\nThank you,\nSmartCart Team`,
       html: htmlContent,
     });
 
@@ -278,7 +284,7 @@ export async function sendWelcomeEmail({ name, email, password }) {
       type: 'Welcome Email',
       to: email,
       recipientName: name,
-      subject: `🎉 Welcome to SmartCart, ${name}!`,
+      subject: `Welcome to SmartCart, ${name}`,
       messageId: result.messageId || `msg_${Date.now()}`,
       previewUrl: result.previewUrl || null,
       deliveredAt: new Date().toISOString(),
@@ -463,8 +469,8 @@ export async function sendOrderConfirmationEmail({ order, user }) {
 
     const result = await dispatchEmail({
       to: recipientEmail,
-      subject: `📦 Order Confirmed #${orderId} - ₹${Number(order.totalPrice || 0).toLocaleString('en-IN')} | SmartCart`,
-      text: `Hello ${recipientName},\n\nYour order #${orderId} has been confirmed!\nTotal: ₹${Number(order.totalPrice || 0).toLocaleString('en-IN')}\nStatus: ${order.status || 'Confirmed'}\n\nThank you for shopping with SmartCart!`,
+      subject: `SmartCart Order Confirmation #${orderId}`,
+      text: `Hello ${recipientName},\n\nYour order #${orderId} has been confirmed.\nTotal Amount: ₹${Number(order.totalPrice || 0).toLocaleString('en-IN')}\nStatus: ${order.status || 'Confirmed'}\n\nThank you for shopping with SmartCart.\nTrack your order at: http://localhost:5173/orders`,
       html: htmlContent,
     });
 
@@ -474,7 +480,7 @@ export async function sendOrderConfirmationEmail({ order, user }) {
       recipientName,
       orderId,
       totalAmount: order.totalPrice,
-      subject: `📦 Order Confirmed #${orderId}`,
+      subject: `Order Confirmation #${orderId}`,
       messageId: result.messageId || `msg_${Date.now()}`,
       previewUrl: result.previewUrl || null,
       deliveredAt: new Date().toISOString(),
