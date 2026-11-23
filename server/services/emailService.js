@@ -24,7 +24,9 @@ export function getRecentSentEmails() {
  * Initialize or retrieve the active email transporter
  */
 export async function getTransporter() {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, GMAIL_USER, GMAIL_APP_PASS } = process.env;
+  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
+  const GMAIL_USER = (process.env.GMAIL_USER || 'smartcartindia99@gmail.com').trim();
+  const GMAIL_APP_PASS = (process.env.GMAIL_APP_PASS || 'guhlyygrbqthsdmy').trim();
 
   // If transporter already created and using custom credentials, reuse it
   if (transporter && (!isEthereal || (!GMAIL_USER && !SMTP_HOST))) {
@@ -37,14 +39,14 @@ export async function getTransporter() {
     transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: GMAIL_USER.trim(),
+        user: GMAIL_USER,
         pass: cleanPass,
       },
       pool: true,
       maxConnections: 5,
     });
     isEthereal = false;
-    console.log(`[Email] ✅ Configured Real Gmail SMTP for ${GMAIL_USER.trim()}`);
+    console.log(`[Email] ✅ Configured Real Gmail SMTP for ${GMAIL_USER}`);
   } else if (SMTP_HOST && SMTP_USER && SMTP_PASS) {
     // Custom Real SMTP (Brevo / SendGrid / AWS SES)
     transporter = nodemailer.createTransport({

@@ -15,7 +15,10 @@ const TAX_RATE = 0.18; // 18% GST
 const FREE_SHIPPING_THRESHOLD = 500; // Free shipping over ₹500
 const FLAT_SHIPPING = 50; // ₹50 flat rate
 
+const MAX_QTY_PER_PRODUCT = 5; // Strict customer purchase limit per item
+
 function toLine(product, qty) {
+  const stock = product.countInStock !== undefined ? product.countInStock : 99;
   return {
     _id: product._id || product.id,
     title: product.title,
@@ -23,8 +26,8 @@ function toLine(product, qty) {
     price: Number(product.price),
     brand: product.brand || 'Generic',
     category: product.category || 'General',
-    countInStock: product.countInStock !== undefined ? product.countInStock : 99,
-    qty,
+    countInStock: stock,
+    qty: Math.min(qty, Math.min(MAX_QTY_PER_PRODUCT, stock)),
   };
 }
 
@@ -37,7 +40,8 @@ function reducer(state, action) {
       const { product, qty } = action;
       const pid = product._id || product.id;
       const existing = state.find((i) => i._id === pid);
-      const max = product.countInStock !== undefined ? product.countInStock : 99;
+      const stock = product.countInStock !== undefined ? product.countInStock : 99;
+      const max = Math.min(MAX_QTY_PER_PRODUCT, stock);
 
       if (existing) {
         return state.map((i) =>
@@ -48,10 +52,15 @@ function reducer(state, action) {
     }
 
     case 'SET_QTY': {
-      const qty = Math.max(1, action.qty);
-      return state.map((i) =>
-        i._id === action.id ? { ...i, qty: Math.min(qty, i.countInStock || 99) } : i
-      );
+      return state.map((i) => {
+        if (i._id === action.id) {
+          const stock = i.countInStock !== undefined ? i.countInStock : 99;
+          const max = Math.min(MAX_QTY_PER_PRODUCT, stock);
+          const qty = Math.min(Math.max(1, action.qty), max);
+          return { ...i, qty };
+        }
+        return i;
+      });
     }
 
     case 'REMOVE':

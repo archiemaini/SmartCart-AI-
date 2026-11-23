@@ -37,11 +37,15 @@ export default function ProductCard({ product, onDelete }) {
             {off}% off
           </span>
         )}
-        {outOfStock && (
+        {outOfStock ? (
           <span className="absolute right-3 top-3 px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-50 text-red-700 border border-red-200 shadow-xs">
             Out of stock
           </span>
-        )}
+        ) : product.countInStock <= 5 ? (
+          <span className="absolute right-3 top-3 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 shadow-xs">
+            Only {product.countInStock} left
+          </span>
+        ) : null}
       </Link>
 
       {/* Product Details */}

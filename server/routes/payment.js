@@ -180,13 +180,17 @@ router.post('/verify', protect, async (req, res, next) => {
 
     await order.save();
 
-    // Inventory Management: Automatically decrease product stock after a successful order
-    for (const item of order.items) {
-      if (item.product) {
-        await Product.findByIdAndUpdate(item.product, {
-          $inc: { countInStock: -item.qty },
-        });
+    // Inventory Management: Ensure stock is decremented if not already deducted at order creation
+    if (!order.stockDeducted) {
+      for (const item of order.items) {
+        if (item.product) {
+          await Product.findByIdAndUpdate(item.product, {
+            $inc: { countInStock: -item.qty },
+          });
+        }
       }
+      order.stockDeducted = true;
+      await order.save();
     }
 
     // Send real Order Confirmation Email (Feature 1)
@@ -205,19 +209,33 @@ router.post('/verify', protect, async (req, res, next) => {
 
 /**
  * @route   POST /api/payment/failed
- * @desc    Handle failed or cancelled payment
+ * @desc    Handle failed or cancelled payment and restore reserved inventory
  * @access  Private
  */
 router.post('/failed', protect, async (req, res, next) => {
   try {
     const { orderId, reason } = req.body;
     if (orderId) {
-      await Order.findByIdAndUpdate(orderId, {
-        paymentStatus: 'Failed',
-        status: 'Cancelled',
-      });
+      const order = await Order.findById(orderId);
+      if (order) {
+        order.paymentStatus = 'Failed';
+        order.status = 'Cancelled';
+
+        // Restore reserved inventory if previously deducted
+        if (order.stockDeducted) {
+          for (const item of order.items) {
+            if (item.product) {
+              await Product.findByIdAndUpdate(item.product, {
+                $inc: { countInStock: item.qty },
+              });
+            }
+          }
+          order.stockDeducted = false;
+        }
+        await order.save();
+      }
     }
-    res.json({ message: 'Payment failure recorded', reason });
+    res.json({ message: 'Payment failure recorded and stock restored', reason });
   } catch (error) {
     next(error);
   }

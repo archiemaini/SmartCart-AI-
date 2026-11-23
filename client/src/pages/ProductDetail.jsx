@@ -70,6 +70,7 @@ export default function ProductDetail() {
   const off = discountPercent(product.price, product.mrp);
   const inCart = isInCart(product._id);
   const outOfStock = product.countInStock === 0;
+  const maxAllowed = Math.min(5, product.countInStock);
 
   function handleBuyNow() {
     addItem(product, qty);
@@ -139,11 +140,20 @@ export default function ProductDetail() {
           </div>
           <p className="mt-1 text-xs text-neutral-400">Inclusive of all standard taxes</p>
 
-          <p className={`mt-4 text-xs font-semibold ${outOfStock ? 'text-red-600' : 'text-emerald-700'}`}>
-            {outOfStock
-              ? 'Currently out of stock'
-              : `In Stock (${product.countInStock} units available)`}
-          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <p className={`text-xs font-semibold ${outOfStock ? 'text-red-600' : product.countInStock <= 5 ? 'text-amber-700' : 'text-emerald-700'}`}>
+              {outOfStock
+                ? 'Currently out of stock'
+                : product.countInStock <= 5
+                ? `⚡ Only ${product.countInStock} units left in stock - order soon!`
+                : `✓ In Stock (${product.countInStock} units available)`}
+            </p>
+            {!outOfStock && (
+              <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                Limit: Max 5 per customer
+              </span>
+            )}
+          </div>
 
           {/* Quantity & CTA Buttons */}
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -159,9 +169,10 @@ export default function ProductDetail() {
               <span className="w-8 text-center text-xs font-bold text-neutral-900">{qty}</span>
               <button
                 type="button"
-                onClick={() => setQty((q) => Math.min(product.countInStock, q + 1))}
-                disabled={qty >= product.countInStock}
+                onClick={() => setQty((q) => Math.min(maxAllowed, q + 1))}
+                disabled={qty >= maxAllowed}
                 className="p-3 text-neutral-500 hover:text-neutral-900 disabled:opacity-30"
+                title={qty >= 5 ? 'Maximum limit of 5 units per customer reached' : undefined}
               >
                 <Plus size={14} />
               </button>

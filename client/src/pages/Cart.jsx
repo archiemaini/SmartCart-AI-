@@ -155,6 +155,18 @@ export default function Cart() {
 
     if (items.length === 0) return;
 
+    // Validate quantities against max 5 purchase limit and available stock
+    for (const it of items) {
+      if (it.qty > 5) {
+        setError(`Purchase limit exceeded for "${it.title}". Maximum 5 units allowed per customer.`);
+        return;
+      }
+      if (it.countInStock !== undefined && it.qty > it.countInStock) {
+        setError(`Insufficient stock for "${it.title}". Only ${it.countInStock} units available.`);
+        return;
+      }
+    }
+
     // Validate shipping address
     const shippingAddress = getActiveShippingAddress();
     if (!shippingAddress || !shippingAddress.fullName || !shippingAddress.mobileNumber || !shippingAddress.houseNo || !shippingAddress.street || !shippingAddress.city || !shippingAddress.pinCode) {
@@ -329,13 +341,18 @@ export default function Cart() {
                     <p className="text-sm font-bold text-neutral-900 mt-1">
                       {formatPrice(item.price)}
                     </p>
-                    <p className="text-[11px] text-neutral-500 mt-0.5">
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
                       {item.countInStock > 0 ? (
-                        <span className="text-emerald-600 font-medium">In Stock ({item.countInStock} available)</span>
+                        <span className={`font-medium ${item.countInStock <= 5 ? 'text-amber-700' : 'text-emerald-600'}`}>
+                          {item.countInStock <= 5 ? `Only ${item.countInStock} left` : `In Stock (${item.countInStock} available)`}
+                        </span>
                       ) : (
                         <span className="text-red-500 font-medium">Out of Stock</span>
                       )}
-                    </p>
+                      <span className="text-[10px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-1.5 py-0.2 rounded">
+                        Max 5/person
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -357,7 +374,8 @@ export default function Cart() {
                     <button
                       type="button"
                       onClick={() => setQty(item._id, item.qty + 1)}
-                      disabled={item.qty >= item.countInStock}
+                      disabled={item.qty >= Math.min(5, item.countInStock !== undefined ? item.countInStock : 99)}
+                      title={item.qty >= 5 ? 'Maximum limit of 5 units per customer reached' : undefined}
                       className="p-1 rounded-lg text-neutral-600 hover:bg-white hover:text-neutral-900 disabled:opacity-30 transition"
                       aria-label="Increase quantity"
                     >

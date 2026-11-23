@@ -71,6 +71,10 @@ const orderSchema = new mongoose.Schema(
     paidAt: {
       type: Date,
     },
+    stockDeducted: {
+      type: Boolean,
+      default: false,
+    },
     paymentResult: {
       id: { type: String },
       orderId: { type: String },
