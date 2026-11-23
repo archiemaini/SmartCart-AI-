@@ -96,7 +96,7 @@ async function dispatchEmail({ to, subject, html, text }) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY?.trim();
   const BREVO_API_KEY = process.env.BREVO_API_KEY?.trim();
 
-  // 1. Resend HTTP REST API (unblockable on Render free tier, standard port 443)
+  // 1. Resend HTTP REST API (directly to the user recipient)
   if (RESEND_API_KEY) {
     try {
       const fromAddr = process.env.EMAIL_FROM || 'SmartCart <onboarding@resend.dev>';
@@ -116,52 +116,22 @@ async function dispatchEmail({ to, subject, html, text }) {
       });
       const data = await res.json();
       if (res.ok) {
-        console.log(`[Email] ✅ Dispatched via Resend HTTP API to ${to} (ID: ${data.id})`);
+        console.log(`[Email] ✅ Dispatched directly to ${to} via Resend (ID: ${data.id})`);
         return { success: true, messageId: data.id, isRealInboxDelivery: true, provider: 'Resend HTTP' };
       }
-
-      // If Resend returns 403 sandbox restriction (can only send testing emails to smartcartindia99@gmail.com before custom domain verification)
-      if (data.statusCode === 403 && String(data.message).includes('only send testing emails')) {
-        console.warn(`[Email] Resend sandbox restriction: forwarding to verified account smartcartindia99@gmail.com for recipient ${to}`);
-        const fwdRes = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${RESEND_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: fromAddr,
-            to: ['smartcartindia99@gmail.com'],
-            subject: `[Delivered for: ${to}] ${subject}`,
-            html: `
-              <div style="background:#fef3c7;border:1.5px solid #f59e0b;padding:12px 16px;margin-bottom:20px;border-radius:10px;font-family:-apple-system,sans-serif;font-size:12px;color:#92400e;line-height:1.5;">
-                <strong>📬 Resend Sandbox Delivery Notice:</strong><br>
-                This automated notification was generated for <strong>${to}</strong>.<br>
-                <em>(In Resend's free tier before verifying a custom domain at resend.com/domains, all outbound emails are delivered to the registered owner: <strong>smartcartindia99@gmail.com</strong>).</em>
-              </div>
-            ` + html,
-            text: `[Originally generated for: ${to}]\n\n` + text,
-          }),
-        });
-        const fwdData = await fwdRes.json();
-        if (fwdRes.ok) {
-          console.log(`[Email] ✅ Delivered to smartcartindia99@gmail.com for ${to} via Resend (ID: ${fwdData.id})`);
-          return { success: true, messageId: fwdData.id, isRealInboxDelivery: true, provider: 'Resend Sandbox' };
-        }
-      }
-      console.warn(`[Email] Resend API response: ${JSON.stringify(data)}`);
+      console.warn(`[Email] Resend API error for ${to}: ${data.message || JSON.stringify(data)}`);
     } catch (err) {
       console.warn(`[Email] Resend fetch error: ${err.message}`);
     }
   }
 
-  // 2. Brevo HTTP REST API (unblockable on Render free tier, standard port 443)
+  // 2. Brevo HTTP REST API (directly to the user recipient)
   if (BREVO_API_KEY) {
     try {
       const res = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
         headers: {
-          'api-key': BREVO_API_KEY.trim(),
+          'api-key': BREVO_API_KEY,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -174,21 +144,21 @@ async function dispatchEmail({ to, subject, html, text }) {
       });
       const data = await res.json();
       if (res.ok) {
-        console.log(`[Email] ✅ Dispatched via Brevo HTTP API to ${to} (MessageId: ${data.messageId})`);
+        console.log(`[Email] ✅ Dispatched directly to ${to} via Brevo (MessageId: ${data.messageId})`);
         return { success: true, messageId: data.messageId, isRealInboxDelivery: true, provider: 'Brevo HTTP' };
       }
-      console.warn(`[Email] Brevo API response: ${JSON.stringify(data)}`);
+      console.warn(`[Email] Brevo API error for ${to}: ${JSON.stringify(data)}`);
     } catch (err) {
       console.warn(`[Email] Brevo fetch error: ${err.message}`);
     }
   }
 
-  // 3. SMTP (Gmail SMTP / Custom SMTP) with safety timeout race
+  // 3. Direct Gmail SMTP / Custom SMTP (Delivered directly to the user recipient)
   try {
     const client = await getTransporter();
     const fromAddress = process.env.EMAIL_FROM || (process.env.GMAIL_USER ? `"SmartCart India" <${process.env.GMAIL_USER.trim()}>` : '"SmartCart India" <smartcartindia99@gmail.com>');
 
-    const sendPromise = client.sendMail({
+    const info = await client.sendMail({
       from: fromAddress,
       to,
       subject,
@@ -196,22 +166,8 @@ async function dispatchEmail({ to, subject, html, text }) {
       html,
     });
 
-    // 7-second timeout race to prevent server hanging if cloud host (e.g. Render Free Tier) drops outbound SMTP packets
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(
-        () =>
-          reject(
-            new Error(
-              'SMTP connection timed out. (Render Free Tier blocks outbound SMTP ports 25, 465, 587. To send real emails from Render, add RESEND_API_KEY or BREVO_API_KEY to Render Environment Variables)'
-            )
-          ),
-        7000
-      )
-    );
-
-    const info = await Promise.race([sendPromise, timeoutPromise]);
     const previewUrl = nodemailer.getTestMessageUrl(info);
-    console.log(`[Email] ✅ Dispatched via SMTP to ${to} (Message ID: ${info.messageId})`);
+    console.log(`[Email] ✅ Dispatched directly via SMTP to ${to} (Message ID: ${info.messageId})`);
     return {
       success: true,
       messageId: info.messageId,
@@ -220,7 +176,7 @@ async function dispatchEmail({ to, subject, html, text }) {
       provider: 'SMTP',
     };
   } catch (smtpErr) {
-    console.error(`[Email] SMTP delivery failed: ${smtpErr.message}`);
+    console.error(`[Email] SMTP delivery failed for ${to}: ${smtpErr.message}`);
     return { success: false, error: smtpErr.message, isRealInboxDelivery: false };
   }
 }
