@@ -87,15 +87,120 @@ export async function getTransporter() {
 }
 
 /**
+ * Universal email dispatcher:
+ * 1. Resend HTTP API (HTTPS port 443 - works everywhere, including Render Free Tier)
+ * 2. Brevo HTTP API (HTTPS port 443 - works everywhere, including Render Free Tier)
+ * 3. Gmail SMTP / Custom SMTP (Nodemailer - with timeout race so blocked SMTP ports on cloud hosts don't hang)
+ */
+async function dispatchEmail({ to, subject, html, text }) {
+  const { RESEND_API_KEY, BREVO_API_KEY } = process.env;
+
+  // 1. Resend HTTP REST API (unblockable on Render free tier, standard port 443)
+  if (RESEND_API_KEY) {
+    try {
+      const fromAddr = process.env.EMAIL_FROM || 'SmartCart <onboarding@resend.dev>';
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${RESEND_API_KEY.trim()}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: fromAddr,
+          to: [to],
+          subject,
+          html,
+          text,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        console.log(`[Email] ✅ Dispatched via Resend HTTP API to ${to} (ID: ${data.id})`);
+        return { success: true, messageId: data.id, isRealInboxDelivery: true, provider: 'Resend HTTP' };
+      }
+      console.warn(`[Email] Resend API response: ${JSON.stringify(data)}`);
+    } catch (err) {
+      console.warn(`[Email] Resend fetch error: ${err.message}`);
+    }
+  }
+
+  // 2. Brevo HTTP REST API (unblockable on Render free tier, standard port 443)
+  if (BREVO_API_KEY) {
+    try {
+      const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'api-key': BREVO_API_KEY.trim(),
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sender: { name: 'SmartCart India', email: 'smartcartindia99@gmail.com' },
+          to: [{ email: to }],
+          subject,
+          htmlContent: html,
+          textContent: text,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        console.log(`[Email] ✅ Dispatched via Brevo HTTP API to ${to} (MessageId: ${data.messageId})`);
+        return { success: true, messageId: data.messageId, isRealInboxDelivery: true, provider: 'Brevo HTTP' };
+      }
+      console.warn(`[Email] Brevo API response: ${JSON.stringify(data)}`);
+    } catch (err) {
+      console.warn(`[Email] Brevo fetch error: ${err.message}`);
+    }
+  }
+
+  // 3. SMTP (Gmail SMTP / Custom SMTP) with safety timeout race
+  try {
+    const client = await getTransporter();
+    const fromAddress = process.env.EMAIL_FROM || (process.env.GMAIL_USER ? `"SmartCart India" <${process.env.GMAIL_USER.trim()}>` : '"SmartCart India" <smartcartindia99@gmail.com>');
+
+    const sendPromise = client.sendMail({
+      from: fromAddress,
+      to,
+      subject,
+      text,
+      html,
+    });
+
+    // 7-second timeout race to prevent server hanging if cloud host (e.g. Render Free Tier) drops outbound SMTP packets
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(
+        () =>
+          reject(
+            new Error(
+              'SMTP connection timed out. (Render Free Tier blocks outbound SMTP ports 25, 465, 587. To send real emails from Render, add RESEND_API_KEY or BREVO_API_KEY to Render Environment Variables)'
+            )
+          ),
+        7000
+      )
+    );
+
+    const info = await Promise.race([sendPromise, timeoutPromise]);
+    const previewUrl = nodemailer.getTestMessageUrl(info);
+    console.log(`[Email] ✅ Dispatched via SMTP to ${to} (Message ID: ${info.messageId})`);
+    return {
+      success: true,
+      messageId: info.messageId,
+      previewUrl: previewUrl || null,
+      isRealInboxDelivery: !isEthereal,
+      provider: 'SMTP',
+    };
+  } catch (smtpErr) {
+    console.error(`[Email] SMTP delivery failed: ${smtpErr.message}`);
+    return { success: false, error: smtpErr.message, isRealInboxDelivery: false };
+  }
+}
+
+/**
  * Send Welcome Email upon successful user registration
  * Feature 1: Send a welcome email to users whenever they successfully register.
  * Includes account details: Login Email and Account Password.
  */
 export async function sendWelcomeEmail({ name, email, password }) {
   try {
-    const client = await getTransporter();
-    const fromAddress = process.env.EMAIL_FROM || (process.env.GMAIL_USER ? `"SmartCart India" <${process.env.GMAIL_USER.trim()}>` : '"SmartCart India" <noreply@smartcart.com>');
-
     const htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -175,38 +280,27 @@ export async function sendWelcomeEmail({ name, email, password }) {
       </html>
     `;
 
-    const info = await client.sendMail({
-      from: fromAddress,
+    const result = await dispatchEmail({
       to: email,
       subject: `🎉 Welcome to SmartCart, ${name}! Your Account Details & Password`,
       text: `Hello ${name}!\n\nWelcome to SmartCart! Your account has been successfully created.\n\nHere are your login credentials:\n• Login Email: ${email}\n• Password: ${password}\n\nSign in at: http://localhost:5173/login\n\n- The SmartCart Team`,
       html: htmlContent,
     });
 
-    const previewUrl = nodemailer.getTestMessageUrl(info);
-    console.log(`[Email] ✅ Welcome email delivered to ${email} (Message ID: ${info.messageId})`);
-    if (previewUrl) {
-      console.log(`[Email] 🌐 Live Web Inbox Preview URL: ${previewUrl}`);
-    }
-
     const record = {
       type: 'Welcome Email',
       to: email,
       recipientName: name,
       subject: `🎉 Welcome to SmartCart, ${name}!`,
-      messageId: info.messageId,
-      previewUrl: previewUrl || null,
+      messageId: result.messageId || `msg_${Date.now()}`,
+      previewUrl: result.previewUrl || null,
       deliveredAt: new Date().toISOString(),
-      isRealInboxDelivery: !isEthereal,
+      isRealInboxDelivery: Boolean(result.isRealInboxDelivery),
+      provider: result.provider || 'System',
     };
     recentSentEmails.push(record);
 
-    return {
-      success: true,
-      messageId: info.messageId,
-      previewUrl: previewUrl || null,
-      isRealInboxDelivery: !isEthereal,
-    };
+    return result;
   } catch (error) {
     console.error(`[Email] Failed to send welcome email: ${error.message}`);
     return { success: false, error: error.message };
@@ -380,19 +474,12 @@ export async function sendOrderConfirmationEmail({ order, user }) {
       </html>
     `;
 
-    const info = await client.sendMail({
-      from: fromAddress,
+    const result = await dispatchEmail({
       to: recipientEmail,
       subject: `📦 Order Confirmed #${orderId} - ₹${Number(order.totalPrice || 0).toLocaleString('en-IN')} | SmartCart`,
       text: `Hello ${recipientName},\n\nYour order #${orderId} has been confirmed!\nTotal: ₹${Number(order.totalPrice || 0).toLocaleString('en-IN')}\nStatus: ${order.status || 'Confirmed'}\n\nThank you for shopping with SmartCart!`,
       html: htmlContent,
     });
-
-    const previewUrl = nodemailer.getTestMessageUrl(info);
-    console.log(`[Email] ✅ Order confirmation email delivered to ${recipientEmail} for Order #${orderId}`);
-    if (previewUrl) {
-      console.log(`[Email] 🌐 Live Web Invoice Preview URL: ${previewUrl}`);
-    }
 
     const record = {
       type: 'Order Confirmation Invoice',
@@ -401,19 +488,15 @@ export async function sendOrderConfirmationEmail({ order, user }) {
       orderId,
       totalAmount: order.totalPrice,
       subject: `📦 Order Confirmed #${orderId}`,
-      messageId: info.messageId,
-      previewUrl: previewUrl || null,
+      messageId: result.messageId || `msg_${Date.now()}`,
+      previewUrl: result.previewUrl || null,
       deliveredAt: new Date().toISOString(),
-      isRealInboxDelivery: !isEthereal,
+      isRealInboxDelivery: Boolean(result.isRealInboxDelivery),
+      provider: result.provider || 'System',
     };
     recentSentEmails.push(record);
 
-    return {
-      success: true,
-      messageId: info.messageId,
-      previewUrl: previewUrl || null,
-      isRealInboxDelivery: !isEthereal,
-    };
+    return result;
   } catch (error) {
     console.error(`[Email] Failed to send order confirmation email: ${error.message}`);
     return { success: false, error: error.message };

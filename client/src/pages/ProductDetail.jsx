@@ -150,7 +150,7 @@ export default function ProductDetail() {
             </p>
             {!outOfStock && (
               <span className="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-                Limit: Max 5 per customer
+                Limit: Max 5 per order
               </span>
             )}
           </div>
@@ -172,7 +172,7 @@ export default function ProductDetail() {
                 onClick={() => setQty((q) => Math.min(maxAllowed, q + 1))}
                 disabled={qty >= maxAllowed}
                 className="p-3 text-neutral-500 hover:text-neutral-900 disabled:opacity-30"
-                title={qty >= 5 ? 'Maximum limit of 5 units per customer reached' : undefined}
+                title={qty >= 5 ? 'Maximum limit of 5 units per order reached' : undefined}
               >
                 <Plus size={14} />
               </button>

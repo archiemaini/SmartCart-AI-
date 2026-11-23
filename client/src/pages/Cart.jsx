@@ -158,7 +158,7 @@ export default function Cart() {
     // Validate quantities against max 5 purchase limit and available stock
     for (const it of items) {
       if (it.qty > 5) {
-        setError(`Purchase limit exceeded for "${it.title}". Maximum 5 units allowed per customer.`);
+        setError(`Purchase limit exceeded for "${it.title}". Maximum 5 units allowed per order.`);
         return;
       }
       if (it.countInStock !== undefined && it.qty > it.countInStock) {
@@ -350,7 +350,7 @@ export default function Cart() {
                         <span className="text-red-500 font-medium">Out of Stock</span>
                       )}
                       <span className="text-[10px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 px-1.5 py-0.2 rounded">
-                        Max 5/person
+                        Max 5/order
                       </span>
                     </div>
                   </div>
@@ -375,7 +375,7 @@ export default function Cart() {
                       type="button"
                       onClick={() => setQty(item._id, item.qty + 1)}
                       disabled={item.qty >= Math.min(5, item.countInStock !== undefined ? item.countInStock : 99)}
-                      title={item.qty >= 5 ? 'Maximum limit of 5 units per customer reached' : undefined}
+                      title={item.qty >= 5 ? 'Maximum limit of 5 units per order reached' : undefined}
                       className="p-1 rounded-lg text-neutral-600 hover:bg-white hover:text-neutral-900 disabled:opacity-30 transition"
                       aria-label="Increase quantity"
                     >

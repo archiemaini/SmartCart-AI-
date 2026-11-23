@@ -47,13 +47,8 @@ router.post('/', protect, async (req, res, next) => {
       return res.status(400).json({ message: 'Please provide a valid 6-digit Indian PIN code' });
     }
 
-    // 3. Purchase Limit (Max 5 per person) & Inventory Availability Check
-    const MAX_PER_PERSON = 5;
-    const userPastOrders = await Order.find({
-      user: req.user._id,
-      status: { $nin: ['Cancelled'] },
-    }).select('items');
-
+    // 3. Purchase Limit (Max 5 units per order) & Inventory Availability Check
+    const MAX_PER_ORDER = 5;
     const productUpdates = [];
     for (const item of items) {
       const product = await Product.findById(item.product || item._id);
@@ -61,26 +56,9 @@ router.post('/', protect, async (req, res, next) => {
         return res.status(404).json({ message: `Product "${item.title}" no longer exists in catalog` });
       }
 
-      if (item.qty > MAX_PER_PERSON) {
+      if (item.qty > MAX_PER_ORDER) {
         return res.status(400).json({
-          message: `Limit exceeded for "${product.title}". Maximum allowed is ${MAX_PER_PERSON} units per customer.`,
-        });
-      }
-
-      // Check total quantity previously purchased by this user across past orders
-      let priorPurchased = 0;
-      for (const pastOrder of userPastOrders) {
-        for (const pastItem of pastOrder.items) {
-          if (String(pastItem.product) === String(product._id)) {
-            priorPurchased += pastItem.qty;
-          }
-        }
-      }
-
-      if (priorPurchased + item.qty > MAX_PER_PERSON) {
-        const remainingAllowed = Math.max(0, MAX_PER_PERSON - priorPurchased);
-        return res.status(400).json({
-          message: `Purchase limit exceeded for "${product.title}". You have already purchased ${priorPurchased} units previously. Maximum allowed is ${MAX_PER_PERSON} units per customer (${remainingAllowed > 0 ? remainingAllowed + ' more allowed' : 'limit reached'}).`,
+          message: `Limit exceeded for "${product.title}". Maximum allowed is ${MAX_PER_ORDER} units per order.`,
         });
       }
 
