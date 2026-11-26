@@ -3,10 +3,13 @@
  * Feature: Storefront Footer, Trust Badges & Category Links
  * =====================================================================
  */
-import { Sparkles, ShieldCheck, Truck, CreditCard, Headphones } from 'lucide-react';
+import { Sparkles, ShieldCheck, Truck, CreditCard, Headphones, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Footer() {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  };
   return (
     <footer className="mt-20 border-t border-neutral-200 bg-white">
       {/* Trust Badges Bar */}
@@ -73,31 +76,33 @@ export default function Footer() {
         <div>
           <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-800">Shop by Category</h3>
           <ul className="space-y-2 text-xs text-neutral-500">
-            <li><Link to="/?category=Electronics" className="hover:text-emerald-700 transition">Electronics & Phones</Link></li>
-            <li><Link to="/?category=Computers %26 Accessories" className="hover:text-emerald-700 transition">Computers & Accessories</Link></li>
-            <li><Link to="/?category=Home %26 Kitchen" className="hover:text-emerald-700 transition">Home & Kitchen</Link></li>
-            <li><Link to="/?category=Fashion %26 Apparel" className="hover:text-emerald-700 transition">Fashion & Apparel</Link></li>
-            <li><Link to="/?category=Health %26 Personal Care" className="hover:text-emerald-700 transition">Health & Personal Care</Link></li>
+            <li><Link to="/?category=Electronics" onClick={scrollToTop} className="hover:text-emerald-700 transition">Electronics & Phones</Link></li>
+            <li><Link to="/?category=Computers %26 Accessories" onClick={scrollToTop} className="hover:text-emerald-700 transition">Computers & Accessories</Link></li>
+            <li><Link to="/?category=Home %26 Kitchen" onClick={scrollToTop} className="hover:text-emerald-700 transition">Home & Kitchen</Link></li>
+            <li><Link to="/?category=Fashion %26 Apparel" onClick={scrollToTop} className="hover:text-emerald-700 transition">Fashion & Apparel</Link></li>
+            <li><Link to="/?category=Health %26 Personal Care" onClick={scrollToTop} className="hover:text-emerald-700 transition">Health & Personal Care</Link></li>
           </ul>
         </div>
 
         <div>
           <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-800">Customer Support</h3>
           <ul className="space-y-2 text-xs text-neutral-500">
-            <li><Link to="/orders" className="hover:text-emerald-700 transition">Track Your Order</Link></li>
-            <li><Link to="/shipping" className="hover:text-emerald-700 transition">Shipping & Delivery</Link></li>
-            <li><Link to="/faq" className="hover:text-emerald-700 transition">Help Center & FAQs</Link></li>
-            <li><Link to="/contact" className="hover:text-emerald-700 transition">Contact Us</Link></li>
+            <li><Link to="/faq" onClick={scrollToTop} className="hover:text-emerald-700 transition">Help Center & FAQs</Link></li>
+            <li><Link to="/contact" onClick={scrollToTop} className="hover:text-emerald-700 transition">Contact Us</Link></li>
+            <li className="pt-2 flex items-center gap-1.5 font-bold text-neutral-900 text-xs">
+              <Phone size={13} className="text-emerald-700 shrink-0" />
+              <a href="tel:6006730274" className="hover:text-emerald-700 transition font-mono">6006730274</a>
+            </li>
           </ul>
         </div>
 
         <div>
           <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-800">Company & Policies</h3>
           <ul className="space-y-2 text-xs text-neutral-500">
-            <li><Link to="/about" className="hover:text-emerald-700 transition">About SmartCart</Link></li>
-            <li><Link to="/privacy" className="hover:text-emerald-700 transition">Privacy Policy</Link></li>
-            <li><Link to="/terms" className="hover:text-emerald-700 transition">Terms of Service</Link></li>
-            <li><Link to="/security" className="hover:text-emerald-700 transition">Security & Trust</Link></li>
+            <li><Link to="/about" onClick={scrollToTop} className="hover:text-emerald-700 transition">About SmartCart</Link></li>
+            <li><Link to="/privacy" onClick={scrollToTop} className="hover:text-emerald-700 transition">Privacy Policy</Link></li>
+            <li><Link to="/terms" onClick={scrollToTop} className="hover:text-emerald-700 transition">Terms of Service</Link></li>
+            <li><Link to="/security" onClick={scrollToTop} className="hover:text-emerald-700 transition">Security & Trust</Link></li>
           </ul>
         </div>
       </div>

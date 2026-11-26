@@ -58,8 +58,12 @@ export default function Contact() {
               <Phone size={18} />
             </div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500">Phone & WhatsApp Support</h4>
-            <p className="text-sm font-bold text-neutral-900 mt-1">+91 98765 43210</p>
-            <p className="text-[11px] text-neutral-400 mt-1">Mon - Sat: 9:00 AM - 8:00 PM IST</p>
+            <p className="text-sm font-bold text-neutral-900 mt-1 font-mono">
+              <a href="tel:6006730274" className="hover:text-emerald-700 transition">6006730274</a>
+            </p>
+            <p className="text-[11px] text-neutral-400 mt-1">
+              Mon - Sat: 9:00 AM - 8:00 PM IST · <a href="https://wa.me/916006730274" target="_blank" rel="noopener noreferrer" className="text-emerald-700 font-semibold underline">WhatsApp Chat</a>
+            </p>
           </div>
 
           <div className="p-5 rounded-2xl border border-neutral-200 bg-white shadow-xs">

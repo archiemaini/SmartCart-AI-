@@ -4,7 +4,8 @@
  * Route Configuration including AI Assistant, Recommendations & Admin RBAC
  * =====================================================================
  */
-import { Route, Routes } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import CartToast from './components/CartToast';
@@ -30,9 +31,22 @@ import Terms from './pages/Terms';
 import Security from './pages/Security';
 import NotFound from './pages/NotFound';
 
+function ScrollToTop() {
+  const { pathname, search } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname, search]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <div className="flex min-h-screen flex-col bg-neutral-50/50 text-neutral-900 font-sans">
+      {/* Scroll to Top on Route Change */}
+      <ScrollToTop />
+
       {/* Top Navbar */}
       <Navbar />
 
