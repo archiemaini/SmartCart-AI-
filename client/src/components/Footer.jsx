@@ -85,19 +85,19 @@ export default function Footer() {
           <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-800">Customer Support</h3>
           <ul className="space-y-2 text-xs text-neutral-500">
             <li><Link to="/orders" className="hover:text-emerald-700 transition">Track Your Order</Link></li>
-            <li><span className="cursor-pointer hover:text-emerald-700 transition">Shipping & Delivery</span></li>
-            <li><span className="cursor-pointer hover:text-emerald-700 transition">Help Center & FAQs</span></li>
-            <li><span className="cursor-pointer hover:text-emerald-700 transition">Contact Us</span></li>
+            <li><Link to="/shipping" className="hover:text-emerald-700 transition">Shipping & Delivery</Link></li>
+            <li><Link to="/faq" className="hover:text-emerald-700 transition">Help Center & FAQs</Link></li>
+            <li><Link to="/contact" className="hover:text-emerald-700 transition">Contact Us</Link></li>
           </ul>
         </div>
 
         <div>
           <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-neutral-800">Company & Policies</h3>
           <ul className="space-y-2 text-xs text-neutral-500">
-            <li><span className="cursor-pointer hover:text-emerald-700 transition">About SmartCart</span></li>
-            <li><span className="cursor-pointer hover:text-emerald-700 transition">Privacy Policy</span></li>
-            <li><span className="cursor-pointer hover:text-emerald-700 transition">Terms of Service</span></li>
-            <li><span className="cursor-pointer hover:text-emerald-700 transition">Security & Trust</span></li>
+            <li><Link to="/about" className="hover:text-emerald-700 transition">About SmartCart</Link></li>
+            <li><Link to="/privacy" className="hover:text-emerald-700 transition">Privacy Policy</Link></li>
+            <li><Link to="/terms" className="hover:text-emerald-700 transition">Terms of Service</Link></li>
+            <li><Link to="/security" className="hover:text-emerald-700 transition">Security & Trust</Link></li>
           </ul>
         </div>
       </div>

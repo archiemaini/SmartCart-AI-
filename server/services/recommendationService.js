@@ -91,6 +91,12 @@ export async function recordCategoryExplored(userId, category) {
 
 /**
  * Recommendation Algorithm: Generate personalized recommendations for a user
+ * Incorporates:
+ * 1. Items currently in Cart (High-Intent Signal)
+ * 2. Search History Keywords & Queries
+ * 3. Viewed Products
+ * 4. Past Purchased Orders
+ * 5. Explored Categories
  */
 export async function getPersonalizedRecommendations(userId) {
   let user = null;
@@ -103,8 +109,10 @@ export async function getPersonalizedRecommendations(userId) {
 
   // 1. Gather all purchased product IDs and category affinities
   const purchasedProductIds = new Set();
+  const cartProductIds = new Set();
   const categoryScores = {};
   const pricePoints = [];
+  const cartCategories = [];
 
   // Order history signals (Weight = 5 per item)
   for (const order of userOrders) {
@@ -120,6 +128,47 @@ export async function getPersonalizedRecommendations(userId) {
     categoryScores[p.category] = (categoryScores[p.category] || 0) + 5;
   }
 
+  // 1b. Cart items signals (High-Intent Signal: Weight = 12 per item)
+  if (user?.cart && user.cart.length > 0) {
+    for (const item of user.cart) {
+      if (item.product) cartProductIds.add(String(item.product));
+      if (item.price) pricePoints.push(item.price);
+      if (item.category && item.category !== 'General') {
+        categoryScores[item.category] = (categoryScores[item.category] || 0) + 12;
+        cartCategories.push(item.category);
+      }
+    }
+  }
+
+  // 1c. Search history signals & keyword extraction (Weight = 8 per search)
+  const recentSearches = (user?.activity?.searches || []).slice(-10).reverse();
+  for (const s of recentSearches) {
+    if (s.category) {
+      categoryScores[s.category] = (categoryScores[s.category] || 0) + 6;
+    }
+    if (s.query) {
+      const q = s.query.toLowerCase().trim();
+      // Match common shopping keywords to product categories
+      if (/(laptop|macbook|notebook|dell|asus|hp|thinkpad|computer|pc|desktop)/i.test(q)) {
+        categoryScores['Computers & Accessories'] = (categoryScores['Computers & Accessories'] || 0) + 8;
+      } else if (/(phone|mobile|iphone|samsung|oneplus|pixel|smartphone|tablet|ipad)/i.test(q)) {
+        categoryScores['Smartphones & Tablets'] = (categoryScores['Smartphones & Tablets'] || 0) + 8;
+      } else if (/(headphone|earphone|airpods|earbuds|audio|speaker|watch|smartwatch|band)/i.test(q)) {
+        categoryScores['Audio & Wearables'] = (categoryScores['Audio & Wearables'] || 0) + 8;
+      } else if (/(gaming|game|controller|ps5|xbox|keyboard|mouse|headset|gpu)/i.test(q)) {
+        categoryScores['Gaming & Accessories'] = (categoryScores['Gaming & Accessories'] || 0) + 8;
+      } else if (/(kitchen|cooker|kettle|fryer|blender|home|vacuum|cleaner|purifier)/i.test(q)) {
+        categoryScores['Home & Kitchen'] = (categoryScores['Home & Kitchen'] || 0) + 8;
+      } else if (/(shirt|dress|jeans|shoes|jacket|fashion|apparel|hoodie|clothing)/i.test(q)) {
+        categoryScores['Fashion & Apparel'] = (categoryScores['Fashion & Apparel'] || 0) + 8;
+      } else if (/(shampoo|serum|cream|skincare|perfume|health|grooming|care)/i.test(q)) {
+        categoryScores['Health & Personal Care'] = (categoryScores['Health & Personal Care'] || 0) + 8;
+      } else {
+        categoryScores['Electronics'] = (categoryScores['Electronics'] || 0) + 4;
+      }
+    }
+  }
+
   // Viewed products signals (Weight = 3 per view)
   if (user?.activity?.viewedProducts) {
     for (const vp of user.activity.viewedProducts) {
@@ -128,15 +177,6 @@ export async function getPersonalizedRecommendations(userId) {
       }
       if (vp.product?.price) {
         pricePoints.push(vp.product.price);
-      }
-    }
-  }
-
-  // Search history signals (Weight = 2 per search)
-  if (user?.activity?.searches) {
-    for (const s of user.activity.searches) {
-      if (s.category) {
-        categoryScores[s.category] = (categoryScores[s.category] || 0) + 2;
       }
     }
   }
@@ -162,10 +202,13 @@ export async function getPersonalizedRecommendations(userId) {
     avgPrice = Math.round(pricePoints.reduce((a, b) => a + b, 0) / pricePoints.length);
   }
 
+  // Excluded IDs (do not recommend items already purchased or already sitting in cart)
+  const excludedIds = Array.from(new Set([...purchasedProductIds, ...cartProductIds]));
+
   // 2. Fetch Targeted Recommendations
   // Rail 1: Top Picks For You (matching top affinity categories)
   const topPicksFilter = {
-    _id: { $nin: Array.from(purchasedProductIds) },
+    _id: { $nin: excludedIds },
   };
   if (sortedCategories.length > 0) {
     topPicksFilter.category = { $in: sortedCategories.slice(0, 3) };
@@ -178,14 +221,83 @@ export async function getPersonalizedRecommendations(userId) {
   // Rail 2: Because You Explored [Top Category]
   const categoryRecommendations = await Product.find({
     category: topCategory,
-    _id: { $nin: [...Array.from(purchasedProductIds), ...topPicks.map((p) => p._id)] },
+    _id: { $nin: [...excludedIds, ...topPicks.map((p) => p._id)] },
   })
     .sort({ rating: -1 })
     .limit(4);
 
-  // Rail 3: Trending & Top-Rated Overall
+  // Rail 3: Dedicated Recommendations Based On Cart Items
+  let cartRecommendations = null;
+  if (user?.cart && user.cart.length > 0) {
+    const latestCartItem = user.cart[user.cart.length - 1];
+    let cartTargetCategory = latestCartItem.category && latestCartItem.category !== 'General'
+      ? latestCartItem.category
+      : (cartCategories[0] || topCategory);
+
+    const relatedCartProducts = await Product.find({
+      category: cartTargetCategory,
+      _id: { $nin: [...excludedIds, ...topPicks.map((p) => p._id), ...categoryRecommendations.map((p) => p._id)] },
+    })
+      .sort({ rating: -1, numReviews: -1 })
+      .limit(4);
+
+    if (relatedCartProducts.length > 0) {
+      cartRecommendations = {
+        sourceTitle: latestCartItem.title,
+        category: cartTargetCategory,
+        products: relatedCartProducts,
+      };
+    }
+  }
+
+  // Rail 4: Dedicated Recommendations Based On Search History
+  let searchRecommendations = null;
+  if (recentSearches.length > 0) {
+    const lastSearch = recentSearches[0];
+    const searchWords = lastSearch.query
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((w) => w.length >= 2);
+
+    if (searchWords.length > 0) {
+      const termRegexes = searchWords.map((w) => new RegExp(w, 'i'));
+      const matchingSearchProducts = await Product.find({
+        $or: [
+          { title: { $in: termRegexes } },
+          { tags: { $in: termRegexes } },
+          { category: { $in: termRegexes } },
+        ],
+        _id: {
+          $nin: [
+            ...excludedIds,
+            ...topPicks.map((p) => p._id),
+            ...categoryRecommendations.map((p) => p._id),
+            ...(cartRecommendations?.products?.map((p) => p._id) || []),
+          ],
+        },
+      })
+        .sort({ rating: -1, numReviews: -1 })
+        .limit(4);
+
+      if (matchingSearchProducts.length > 0) {
+        searchRecommendations = {
+          query: lastSearch.query,
+          products: matchingSearchProducts,
+        };
+      }
+    }
+  }
+
+  // Rail 5: Trending & Top-Rated Overall
   const trending = await Product.find({
-    _id: { $nin: [...topPicks.map((p) => p._id), ...categoryRecommendations.map((p) => p._id)] },
+    _id: {
+      $nin: [
+        ...topPicks.map((p) => p._id),
+        ...categoryRecommendations.map((p) => p._id),
+        ...(cartRecommendations?.products?.map((p) => p._id) || []),
+        ...(searchRecommendations?.products?.map((p) => p._id) || []),
+      ],
+    },
   })
     .sort({ numReviews: -1, rating: -1 })
     .limit(4);
@@ -195,12 +307,13 @@ export async function getPersonalizedRecommendations(userId) {
     topCategories: sortedCategories.slice(0, 4),
     favoriteCategory: topCategory,
     estimatedBudgetPreference: avgPrice,
+    cartItemCount: user?.cart?.length || 0,
     recentlyViewed: (user?.activity?.viewedProducts || [])
       .slice(-6)
       .reverse()
       .map((vp) => vp.product)
       .filter(Boolean),
-    recentSearches: (user?.activity?.searches || []).slice(-5).reverse(),
+    recentSearches: recentSearches.slice(0, 5),
   };
 
   return {
@@ -209,8 +322,10 @@ export async function getPersonalizedRecommendations(userId) {
       category: topCategory,
       products: categoryRecommendations,
     },
+    cartRecommendations,
+    searchRecommendations,
     trending,
     userPreferences,
-    hasHistory: sortedCategories.length > 0 || userOrders.length > 0,
+    hasHistory: sortedCategories.length > 0 || userOrders.length > 0 || (user?.cart?.length || 0) > 0 || recentSearches.length > 0,
   };
 }

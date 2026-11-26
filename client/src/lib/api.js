@@ -107,6 +107,15 @@ export const api = {
   updateOrderStatus: (id, status) => request(`/orders/${id}/status`, { method: 'PUT', body: { status }, auth: true }),
   getAdminStats: () => request('/orders/admin/stats', { auth: true }),
 
+  // ── Admin User Management ──
+  getUsers: (params = {}) => {
+    const qs = params.search ? `?search=${encodeURIComponent(params.search)}` : '';
+    return request(`/users${qs}`, { auth: true });
+  },
+  createUser: (payload) => request('/users', { method: 'POST', body: payload, auth: true }),
+  updateUser: (id, payload) => request(`/users/${id}`, { method: 'PUT', body: payload, auth: true }),
+  deleteUser: (id) => request(`/users/${id}`, { method: 'DELETE', auth: true }),
+
   // ── Payment Gateway Integration (Feature 6) ──
   getPaymentConfig: () => request('/payment/config'),
   createPaymentOrder: (payload) => request('/payment/create-order', { method: 'POST', body: payload, auth: true }),

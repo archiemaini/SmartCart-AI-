@@ -33,6 +33,7 @@ export default function Home() {
   // State Management (Sessions 46-47)
   const [products, setProducts] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
+  const [recMeta, setRecMeta] = useState(null);
   const [filterMeta, setFilterMeta] = useState({ categories: [] });
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedMaxPrice, setSelectedMaxPrice] = useState(null);
@@ -57,12 +58,19 @@ export default function Home() {
     }
   };
 
-  // Fetch recommendations for the personalized section (Feature 4)
+  // Fetch recommendations for the personalized section (Feature 4: Cart + Searches + Affinity)
   const fetchRecommendations = async () => {
     try {
       const recRes = await api.getRecommendations();
-      if (recRes?.topPicks) {
+      if (recRes?.cartRecommendations?.products?.length > 0) {
+        setRecommendations(recRes.cartRecommendations.products.slice(0, 4));
+        setRecMeta({ type: 'cart', label: `Matching items in your cart (${recRes.cartRecommendations.category})` });
+      } else if (recRes?.searchRecommendations?.products?.length > 0) {
+        setRecommendations(recRes.searchRecommendations.products.slice(0, 4));
+        setRecMeta({ type: 'search', label: `Based on your recent search for "${recRes.searchRecommendations.query}"` });
+      } else if (recRes?.topPicks?.length > 0) {
         setRecommendations(recRes.topPicks.slice(0, 4));
+        setRecMeta({ type: 'picks', label: 'Curated based on your interests and top categories' });
       }
     } catch {
       // ignore
@@ -186,8 +194,20 @@ export default function Home() {
             <div className="flex items-center gap-2">
               <Compass size={20} className="text-emerald-700" />
               <div>
-                <h2 className="text-base font-bold text-neutral-900">Recommended For You</h2>
-                <p className="text-xs text-neutral-500">Based on your activity, searches, and top-rated categories</p>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base font-bold text-neutral-900">Recommended For You</h2>
+                  {recMeta?.type === 'cart' && (
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                      Cart Match
+                    </span>
+                  )}
+                  {recMeta?.type === 'search' && (
+                    <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-bold text-teal-800">
+                      Search Signal
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-neutral-500">{recMeta?.label || 'Based on your cart, search history, and preferences'}</p>
               </div>
             </div>
             <Link

@@ -20,6 +20,7 @@ import orderRoutes from './routes/orders.js';
 import chatRoutes from './routes/chat.js';
 import paymentRoutes from './routes/payment.js';
 import recommendationRoutes from './routes/recommendations.js';
+import userRoutes from './routes/users.js';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
 import { getTransporter } from './services/emailService.js';
 
@@ -85,6 +86,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/recommendations', recommendationRoutes);
+app.use('/api/users', userRoutes);
 
 // Serve frontend static files in production (Render single-service deployment)
 if (process.env.NODE_ENV === 'production') {

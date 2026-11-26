@@ -62,7 +62,15 @@ export default function Recommendations() {
     );
   }
 
-  const { topPicks = [], categoryRecommendations, trending = [], userPreferences = {}, hasHistory } = data || {};
+  const {
+    topPicks = [],
+    categoryRecommendations,
+    cartRecommendations,
+    searchRecommendations,
+    trending = [],
+    userPreferences = {},
+    hasHistory,
+  } = data || {};
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-12">
@@ -121,6 +129,62 @@ export default function Recommendations() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {topPicks.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Rail: Based On Products in Your Cart */}
+      {cartRecommendations?.products?.length > 0 && (
+        <section className="space-y-4 pt-6 border-t border-neutral-200">
+          <div className="flex items-center gap-2">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-100 text-emerald-800">
+              <ShoppingBag size={18} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold text-neutral-900">Recommended For Items in Your Cart</h2>
+                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                  Cart Match
+                </span>
+              </div>
+              <p className="text-xs text-neutral-500">
+                Complementary picks matching <span className="font-semibold text-neutral-800">"{cartRecommendations.sourceTitle?.slice(0, 45)}..."</span>
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+            {cartRecommendations.products.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Rail: Based On Recent Search History */}
+      {searchRecommendations?.products?.length > 0 && (
+        <section className="space-y-4 pt-6 border-t border-neutral-200">
+          <div className="flex items-center gap-2">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-teal-100 text-teal-800">
+              <Search size={18} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold text-neutral-900">
+                  Based on Your Recent Search for <span className="text-emerald-700 font-bold">"{searchRecommendations.query}"</span>
+                </h2>
+                <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-bold text-teal-800">
+                  Search Signal
+                </span>
+              </div>
+              <p className="text-xs text-neutral-500">Targeted matches tailored to your search interests</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+            {searchRecommendations.products.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>

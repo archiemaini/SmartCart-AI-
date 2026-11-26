@@ -21,6 +21,13 @@ import Orders from './pages/Orders';
 import OrderSuccess from './pages/OrderSuccess';
 import Recommendations from './pages/Recommendations';
 import AdminDashboard from './pages/AdminDashboard';
+import Shipping from './pages/Shipping';
+import HelpCenter from './pages/HelpCenter';
+import Contact from './pages/Contact';
+import About from './pages/About';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import Terms from './pages/Terms';
+import Security from './pages/Security';
 import NotFound from './pages/NotFound';
 
 export default function App() {
@@ -40,6 +47,13 @@ export default function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/shipping" element={<Shipping />} />
+          <Route path="/faq" element={<HelpCenter />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/security" element={<Security />} />
           <Route
             path="/orders"
             element={
