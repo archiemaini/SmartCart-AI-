@@ -51,6 +51,8 @@ export const api = {
   // ── Authentication & User Profile ──
   register: (payload) => request('/auth/register', { method: 'POST', body: payload }),
   login: (payload) => request('/auth/login', { method: 'POST', body: payload }),
+  verifyLoginOtp: (payload) => request('/auth/verify-login-otp', { method: 'POST', body: payload }),
+  resendLoginOtp: (email) => request('/auth/resend-login-otp', { method: 'POST', body: { email } }),
   checkEmail: (email, context = 'login') =>
     request(`/auth/check-email?email=${encodeURIComponent(email)}&context=${context}&_t=${Date.now()}`),
   me: () => request('/auth/me', { auth: true }),

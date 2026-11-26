@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
 import dns from 'node:dns/promises';
 import User from '../models/User.js';
 import { protect } from '../middleware/auth.js';
-import { sendWelcomeEmail, getRecentSentEmails } from '../services/emailService.js';
+import { sendWelcomeEmail, sendLoginOtpEmail, getRecentSentEmails } from '../services/emailService.js';
 
 const router = express.Router();
 
@@ -241,7 +241,7 @@ router.get('/check-email', async (req, res) => {
 
 /**
  * @route   POST /api/auth/login
- * @desc    Authenticate user & return token
+ * @desc    Verify credentials, generate secure 6-digit OTP, send it to email, and request verification
  * @access  Public
  */
 router.post('/login', async (req, res, next) => {
@@ -263,10 +263,115 @@ router.post('/login', async (req, res, next) => {
       return res.status(401).json({ message: 'Incorrect password for this email' });
     }
 
+    // Generate cryptographically random 6-digit numeric OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.loginOtp = otp;
+    user.loginOtpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
+    await user.save({ validateBeforeSave: false });
+
+    // Send OTP email non-blocking with error catching
+    sendLoginOtpEmail({
+      name: user.name,
+      email: user.email,
+      otp,
+    }).catch((err) => {
+      console.warn(`[Auth] OTP email dispatch warning: ${err.message}`);
+    });
+
+    res.json({
+      otpRequired: true,
+      email: user.email,
+      message: `A 6-digit verification code has been sent to ${user.email}.`,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @route   POST /api/auth/verify-login-otp
+ * @desc    Verify 6-digit login OTP and return JWT token on success
+ * @access  Public
+ */
+router.post('/verify-login-otp', async (req, res, next) => {
+  try {
+    const { email, otp } = req.body || {};
+
+    if (!email || !otp) {
+      return res.status(400).json({ message: 'Email and verification code are required' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanOtp = String(otp).trim();
+
+    const user = await User.findOne({ email: cleanEmail }).select('+loginOtp +loginOtpExpires');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!user.loginOtp || !user.loginOtpExpires) {
+      return res.status(400).json({ message: 'No active verification code found. Please sign in again.' });
+    }
+
+    if (Date.now() > new Date(user.loginOtpExpires).getTime()) {
+      return res.status(400).json({ message: 'Verification code has expired. Please request a new code.' });
+    }
+
+    if (user.loginOtp !== cleanOtp) {
+      return res.status(400).json({ message: 'Invalid verification code. Please check your email and try again.' });
+    }
+
+    // OTP verified successfully: clear the OTP from database
+    user.loginOtp = undefined;
+    user.loginOtpExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
     res.json({
       user: user.toPublicJSON(),
       token: generateToken(user._id),
-      message: 'Login successful',
+      message: 'Login verified successfully! Welcome back.',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @route   POST /api/auth/resend-login-otp
+ * @desc    Resend a fresh 6-digit verification code to user email
+ * @access  Public
+ */
+router.post('/resend-login-otp', async (req, res, next) => {
+  try {
+    const { email } = req.body || {};
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email address is required' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: cleanEmail });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.loginOtp = otp;
+    user.loginOtpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes expiry
+    await user.save({ validateBeforeSave: false });
+
+    sendLoginOtpEmail({
+      name: user.name,
+      email: user.email,
+      otp,
+    }).catch((err) => {
+      console.warn(`[Auth] Resend OTP email warning: ${err.message}`);
+    });
+
+    res.json({
+      message: `A fresh 6-digit code has been sent to ${user.email}.`,
     });
   } catch (error) {
     next(error);

@@ -54,10 +54,25 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = useCallback(async (credentials) => {
-    const { user: me, token } = await api.login(credentials);
+    const res = await api.login(credentials);
+    if (res?.otpRequired) {
+      return res;
+    }
+    const { user: me, token } = res;
     tokenStore.set(token);
     setUser(me);
     return me;
+  }, []);
+
+  const verifyLoginOtp = useCallback(async ({ email, otp }) => {
+    const { user: me, token } = await api.verifyLoginOtp({ email, otp });
+    tokenStore.set(token);
+    setUser(me);
+    return me;
+  }, []);
+
+  const resendLoginOtp = useCallback(async (email) => {
+    return await api.resendLoginOtp(email);
   }, []);
 
   const register = useCallback(async (payload) => {
@@ -98,6 +113,8 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(user),
       isAdmin: user?.role === 'admin',
       login,
+      verifyLoginOtp,
+      resendLoginOtp,
       register,
       logout,
       refreshUser,
@@ -105,7 +122,7 @@ export function AuthProvider({ children }) {
       updateAddress,
       deleteAddress,
     }),
-    [user, loading, login, register, logout, refreshUser, addAddress, updateAddress, deleteAddress]
+    [user, loading, login, verifyLoginOtp, resendLoginOtp, register, logout, refreshUser, addAddress, updateAddress, deleteAddress]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

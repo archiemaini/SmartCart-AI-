@@ -136,6 +136,14 @@ const userSchema = new mongoose.Schema(
     },
     addresses: [addressSchema],
     cart: [cartItemSchema],
+    loginOtp: {
+      type: String,
+      select: false,
+    },
+    loginOtpExpires: {
+      type: Date,
+      select: false,
+    },
     activity: {
       type: activitySchema,
       default: () => ({ searches: [], viewedProducts: [], exploredCategories: [] }),

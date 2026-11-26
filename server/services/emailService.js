@@ -495,3 +495,84 @@ export async function sendOrderConfirmationEmail({ order, user }) {
     return { success: false, error: error.message };
   }
 }
+
+/**
+ * Send Login OTP Verification Email
+ * Feature: Two-Factor Authentication on User Login
+ */
+export async function sendLoginOtpEmail({ name, email, otp }) {
+  try {
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f7f9fa; margin: 0; padding: 24px; }
+          .container { max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+          .header { background: #064e3b; padding: 32px 24px; text-align: center; color: #ffffff; }
+          .header h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+          .header p { margin: 6px 0 0; font-size: 13px; color: #a7f3d0; }
+          .body { padding: 32px 28px; color: #1e293b; font-size: 14px; line-height: 1.6; }
+          .greeting { font-size: 18px; font-weight: 600; color: #0f172a; margin-bottom: 12px; }
+          .otp-box { background: #f0fdf4; border: 2px dashed #059669; border-radius: 14px; padding: 24px 20px; text-align: center; margin: 24px 0; }
+          .otp-code { font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #064e3b; font-family: monospace; margin: 8px 0; }
+          .otp-caption { font-size: 12px; color: #166534; font-weight: 500; }
+          .notice { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 16px; font-size: 12px; color: #64748b; line-height: 1.5; margin-top: 20px; }
+          .footer { background: #f8fafc; padding: 20px 24px; text-align: center; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Smart<span style="color: #34d399;">Cart</span></h1>
+            <p>Two-Factor Authentication Security</p>
+          </div>
+          <div class="body">
+            <div class="greeting">Hello ${name || 'Shopper'}! 👋</div>
+            <p>You recently attempted to sign in to your SmartCart account. Use the 6-digit verification code below to verify your identity and access your account:</p>
+            
+            <div class="otp-box">
+              <div class="otp-caption">YOUR ONE-TIME PASSWORD (OTP)</div>
+              <div class="otp-code">${otp}</div>
+              <div class="otp-caption">Valid for 10 minutes • Do not share this code with anyone</div>
+            </div>
+
+            <div class="notice">
+              🔒 <strong>Security Tip:</strong> If you did not attempt to sign in, someone may have entered your email address. You can safely ignore this email; no one can log in without this code.
+            </div>
+          </div>
+          <div class="footer">
+            <p>© ${new Date().getFullYear()} SmartCart India. All rights reserved.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const result = await dispatchEmail({
+      to: email,
+      subject: `Your SmartCart Login OTP: ${otp}`,
+      text: `Hello ${name || 'Shopper'},\n\nYour SmartCart login verification code is: ${otp}\n\nThis code is valid for 10 minutes.\n\nIf you did not request this code, please ignore this email.\n\n- SmartCart Team`,
+      html: htmlContent,
+    });
+
+    const record = {
+      type: 'Login OTP Verification',
+      to: email,
+      recipientName: name,
+      subject: `Your SmartCart Login OTP: ${otp}`,
+      messageId: result.messageId || `msg_${Date.now()}`,
+      previewUrl: result.previewUrl || null,
+      deliveredAt: new Date().toISOString(),
+      isRealInboxDelivery: Boolean(result.isRealInboxDelivery),
+      provider: result.provider || 'System',
+    };
+    recentSentEmails.push(record);
+
+    return result;
+  } catch (error) {
+    console.error(`[Email] Failed to send login OTP email: ${error.message}`);
+    return { success: false, error: error.message };
+  }
+}
