@@ -46,6 +46,12 @@ const CATEGORY_IMAGE_MAP = [
   // Footwear strictly matched only when explicitly footwear
   { match: /\b(shoe|sneaker|footwear|boot|sandal|loafer|brogue|clogs|slippers)\b/i, url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80' },
   
+  // Hats & Caps
+  { match: /\b(cap|hat|beanie|snapback|baseball cap|beret)\b/i, url: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=800&q=80' },
+
+  // Fans & Appliances
+  { match: /\b(ceiling fan|fan|exhaust fan|table fan|pedestal fan|cooler)\b/i, url: 'https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&w=800&q=80' },
+
   // General Goods
   { match: /bag|backpack|luggage|suitcase/i, url: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80' },
   { match: /coffee|espresso|cafe/i, url: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80' },
@@ -119,11 +125,11 @@ export async function fetchRealOnlineProductImages(title = '', brand = '', categ
 }
 
 /**
- * Execute raw OpenRouter Chat Completion API call
+ * Execute raw OpenRouter Chat Completion API call with automatic resilient fallback
  */
 export async function callOpenRouter({
   messages,
-  model = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-chat',
+  model = process.env.OPENROUTER_MODEL || 'openrouter/auto',
   temperature = 0.7,
   max_tokens = 1500,
 }) {
@@ -132,21 +138,31 @@ export async function callOpenRouter({
     throw new Error('OPENROUTER_API_KEY is not configured in server/.env');
   }
 
-  const response = await fetch(OPENROUTER_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'HTTP-Referer': 'http://localhost:5173',
-      'X-Title': 'SmartCart India Storefront',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model,
-      messages,
-      temperature,
-      max_tokens,
-    }),
-  });
+  const sendRequest = async (targetModel) => {
+    return fetch(OPENROUTER_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': 'http://localhost:5173',
+        'X-Title': 'SmartCart India Storefront',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: targetModel,
+        messages,
+        temperature,
+        max_tokens,
+      }),
+    });
+  };
+
+  let response = await sendRequest(model);
+
+  // If primary model fails with 404 (BYOK constraint) or 400/429 and isn't openrouter/auto, try openrouter/auto
+  if (!response.ok && model !== 'openrouter/auto') {
+    console.warn(`[OpenRouter] Model "${model}" returned status ${response.status}. Falling back to "openrouter/auto"...`);
+    response = await sendRequest('openrouter/auto');
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -207,6 +223,13 @@ Each object in the array MUST have:
       jsonStr = jsonStr.slice(0, -3);
     }
     jsonStr = jsonStr.trim();
+
+    // Extract exact JSON array bounds in case model added extra text
+    const startIdx = jsonStr.indexOf('[');
+    const endIdx = jsonStr.lastIndexOf(']');
+    if (startIdx !== -1 && endIdx !== -1 && endIdx > startIdx) {
+      jsonStr = jsonStr.slice(startIdx, endIdx + 1);
+    }
 
     const parsed = JSON.parse(jsonStr);
     if (!Array.isArray(parsed) || parsed.length === 0) {
