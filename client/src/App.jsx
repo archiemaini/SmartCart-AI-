@@ -22,7 +22,6 @@ import Orders from './pages/Orders';
 import OrderSuccess from './pages/OrderSuccess';
 import Recommendations from './pages/Recommendations';
 import AdminDashboard from './pages/AdminDashboard';
-import Shipping from './pages/Shipping';
 import HelpCenter from './pages/HelpCenter';
 import Contact from './pages/Contact';
 import About from './pages/About';
@@ -61,7 +60,6 @@ export default function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/shipping" element={<Shipping />} />
           <Route path="/faq" element={<HelpCenter />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />

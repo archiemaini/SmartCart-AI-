@@ -57,12 +57,12 @@ export default function Contact() {
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-100 text-emerald-800 mb-3">
               <Phone size={18} />
             </div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500">Phone & WhatsApp Support</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500">Phone Support</h4>
             <p className="text-sm font-bold text-neutral-900 mt-1 font-mono">
-              <a href="tel:6006730274" className="hover:text-emerald-700 transition">6006730274</a>
+              <a href="tel:6006730274" className="hover:text-emerald-700 transition">+91 6006730274</a>
             </p>
             <p className="text-[11px] text-neutral-400 mt-1">
-              Mon - Sat: 9:00 AM - 8:00 PM IST · <a href="https://wa.me/916006730274" target="_blank" rel="noopener noreferrer" className="text-emerald-700 font-semibold underline">WhatsApp Chat</a>
+              Mon - Sat: 9:00 AM - 8:00 PM IST
             </p>
           </div>
 
@@ -72,7 +72,7 @@ export default function Contact() {
             </div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500">Headquarters</h4>
             <p className="text-xs font-bold text-neutral-900 mt-1 leading-relaxed">
-              SmartCart India E-Commerce Labs<br />
+              SmartCart India <br />
               Chitkara University Campus, Rajpura,<br />
               Punjab - 140401, India
             </p>

@@ -3,7 +3,7 @@
  * Feature: Storefront Footer, Trust Badges & Category Links
  * =====================================================================
  */
-import { Sparkles, ShieldCheck, Truck, CreditCard, Headphones, Phone } from 'lucide-react';
+import { Sparkles, ShieldCheck, Truck, CreditCard, Headphones } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Footer() {
@@ -89,10 +89,6 @@ export default function Footer() {
           <ul className="space-y-2 text-xs text-neutral-500">
             <li><Link to="/faq" onClick={scrollToTop} className="hover:text-emerald-700 transition">Help Center & FAQs</Link></li>
             <li><Link to="/contact" onClick={scrollToTop} className="hover:text-emerald-700 transition">Contact Us</Link></li>
-            <li className="pt-2 flex items-center gap-1.5 font-bold text-neutral-900 text-xs">
-              <Phone size={13} className="text-emerald-700 shrink-0" />
-              <a href="tel:6006730274" className="hover:text-emerald-700 transition font-mono">6006730274</a>
-            </li>
           </ul>
         </div>
 
