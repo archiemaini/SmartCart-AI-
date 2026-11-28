@@ -16,10 +16,14 @@ import {
   Sparkles,
   Loader2,
   RotateCcw,
+  ShoppingCart,
+  Check,
+  Star,
+  ExternalLink,
 } from 'lucide-react';
 import { api } from '../lib/api';
 import { useCart } from '../context/CartContext';
-import { formatPrice } from '../lib/format';
+import { formatPrice, handleImageError, discountPercent } from '../lib/format';
 
 const PRESET_QUERIES = [
   'Show me laptops under ₹50,000',
@@ -104,7 +108,9 @@ function FormattedMessage({ text, isUser = false }) {
 
 export default function ChatWidget() {
   const navigate = useNavigate();
+  const { addItem, isInCart, count } = useCart();
   const [isOpen, setIsOpen] = useState(false);
+  const [addedRecently, setAddedRecently] = useState({});
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -121,6 +127,17 @@ export default function ChatWidget() {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isOpen]);
+
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation();
+    if (!product || product.countInStock === 0) return;
+    const pid = product._id || product.id;
+    addItem(product, 1);
+    setAddedRecently((prev) => ({ ...prev, [pid]: true }));
+    setTimeout(() => {
+      setAddedRecently((prev) => ({ ...prev, [pid]: false }));
+    }, 1800);
+  };
 
   const handleSend = async (queryText) => {
     const textToSend = queryText || input;
@@ -139,7 +156,8 @@ export default function ChatWidget() {
         {
           role: 'assistant',
           text: data.reply || 'Here is the information from our catalog:',
-          products: [],
+          products: Array.isArray(data.products) ? data.products : [],
+          isComparison: !!data.isComparison,
         },
       ]);
     } catch (err) {
@@ -227,7 +245,7 @@ export default function ChatWidget() {
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
+                className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} space-y-2`}
               >
                 {/* Bubble Text */}
                 <div
@@ -239,6 +257,133 @@ export default function ChatWidget() {
                 >
                   <FormattedMessage text={msg.text} isUser={msg.role === 'user'} />
                 </div>
+
+                {/* In-Chat Recommended Products */}
+                {msg.role === 'assistant' && msg.products && msg.products.length > 0 && (
+                  <div className="w-full max-w-[95%] space-y-2 pt-1 pl-1">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
+                      <span>Recommended ({msg.products.length})</span>
+                      {count > 0 && (
+                        <Link
+                          to="/cart"
+                          onClick={() => setIsOpen(false)}
+                          className="flex items-center gap-1 text-emerald-700 hover:text-emerald-800 normal-case font-semibold text-[11px] transition"
+                        >
+                          <ShoppingCart size={12} />
+                          <span>View Cart ({count})</span>
+                        </Link>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2">
+                      {msg.products.map((prod) => {
+                        const prodId = prod._id || prod.id;
+                        const inCart = isInCart(prodId);
+                        const isAdded = addedRecently[prodId];
+                        const outOfStock = prod.countInStock === 0;
+                        const off = discountPercent(prod.price, prod.mrp);
+
+                        return (
+                          <div
+                            key={prodId}
+                            className="group flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-2.5 shadow-xs transition hover:border-emerald-300 hover:shadow-sm"
+                          >
+                            {/* Product Thumbnail */}
+                            <Link
+                              to={`/product/${prodId}`}
+                              onClick={() => setIsOpen(false)}
+                              className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-neutral-50 p-1.5 border border-neutral-100 group-hover:bg-neutral-100/60 transition"
+                              title="View product details"
+                            >
+                              <img
+                                src={prod.image}
+                                alt={prod.title}
+                                onError={handleImageError}
+                                className="h-full w-full object-contain mix-blend-multiply transition group-hover:scale-105"
+                              />
+                              {off > 0 && (
+                                <span className="absolute left-1 top-1 px-1 py-0.2 rounded text-[9px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80">
+                                  {off}%
+                                </span>
+                              )}
+                            </Link>
+
+                            {/* Product Info & Actions */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-1">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 truncate">
+                                  {prod.brand || prod.category}
+                                </span>
+                                {prod.rating > 0 && (
+                                  <span className="flex items-center gap-0.5 text-[10px] font-semibold text-amber-600 shrink-0">
+                                    <Star size={10} className="fill-amber-400 text-amber-400" />
+                                    {prod.rating}
+                                  </span>
+                                )}
+                              </div>
+
+                              <Link
+                                to={`/product/${prodId}`}
+                                onClick={() => setIsOpen(false)}
+                                className="block font-semibold text-neutral-900 hover:text-emerald-700 transition line-clamp-1 text-xs mt-0.5"
+                                title={prod.title}
+                              >
+                                {prod.title}
+                              </Link>
+
+                              <div className="flex items-center justify-between gap-2 mt-2">
+                                <div className="flex items-baseline gap-1.5">
+                                  <span className="font-bold text-neutral-900 text-xs">
+                                    {formatPrice(prod.price)}
+                                  </span>
+                                  {prod.mrp > prod.price && (
+                                    <span className="text-[10px] text-neutral-400 line-through">
+                                      {formatPrice(prod.mrp)}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* Add to Cart button */}
+                                <button
+                                  type="button"
+                                  disabled={outOfStock}
+                                  onClick={(e) => handleAddToCart(e, prod)}
+                                  className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold transition active:scale-95 shadow-2xs ${
+                                    outOfStock
+                                      ? 'bg-neutral-100 text-neutral-400 cursor-not-allowed'
+                                      : isAdded
+                                      ? 'bg-emerald-800 text-white shadow-emerald-950/20'
+                                      : inCart
+                                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100'
+                                      : 'bg-emerald-700 text-white hover:bg-emerald-800 shadow-emerald-950/20'
+                                  }`}
+                                  title={outOfStock ? 'Out of stock' : inCart ? 'In cart - click to add another' : 'Add to cart'}
+                                >
+                                  {isAdded ? (
+                                    <>
+                                      <Check size={12} className="stroke-[2.5]" />
+                                      <span>Added!</span>
+                                    </>
+                                  ) : inCart ? (
+                                    <>
+                                      <Check size={12} className="stroke-[2.5]" />
+                                      <span>In Cart (+1)</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ShoppingCart size={12} />
+                                      <span>Add to Cart</span>
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
 

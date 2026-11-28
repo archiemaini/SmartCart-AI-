@@ -362,7 +362,7 @@ export default function Home() {
           {loading && (
             <div className="py-24 flex flex-col items-center justify-center text-neutral-400 gap-3">
               <RefreshCw className="w-8 h-8 animate-spin text-emerald-600" />
-              <p className="text-xs font-semibold">Loading real products from MongoDB...</p>
+              <p className="text-xs font-semibold">Loading products...</p>
             </div>
           )}
 

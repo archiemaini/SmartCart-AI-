@@ -55,7 +55,7 @@ export default function ProductDetail() {
     return (
       <div className="mx-auto max-w-md px-4 py-24 text-center">
         <h1 className="text-xl font-bold text-neutral-900">Product not found</h1>
-        <p className="text-xs text-neutral-500 mt-1">{error || 'This item could not be retrieved from MongoDB.'}</p>
+        <p className="text-xs text-neutral-500 mt-1">{error || 'This item could not be retrieved.'}</p>
         <Link
           to="/"
           className="mt-6 inline-flex px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition"
@@ -215,7 +215,7 @@ export default function ProductDetail() {
               <ShieldCheck size={18} className="text-emerald-700 shrink-0" />
               <div>
                 <p className="text-xs font-bold text-neutral-800">Authentic & Verified</p>
-                <p className="text-[11px] text-neutral-500">Stored in MongoDB database</p>
+                <p className="text-[11px] text-neutral-500">100% Genuine Guaranteed</p>
               </div>
             </div>
           </div>

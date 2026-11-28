@@ -64,7 +64,7 @@ export default function Orders() {
     return (
       <div className="mx-auto max-w-5xl px-4 py-20 text-center text-neutral-400">
         <Package className="w-10 h-10 animate-bounce mx-auto mb-3 text-emerald-700" />
-        <p className="text-sm font-semibold">Loading your order history from MongoDB...</p>
+        <p className="text-sm font-semibold">Loading your order history...</p>
       </div>
     );
   }
